@@ -1,0 +1,113 @@
+-----------------
+getCalendarInstance(<tzId>, <mTime>)
+-----------------
+<tab>public static java.util.GregorianCalendar getCalendarInstance(String tzId, long mTime) {
+<tab><tab>java.util.Calendar cal = java.util.Calendar.getInstance();
+<tab><tab>cal.setTimeZone(java.util.TimeZone.getTimeZone(tzId));
+<tab><tab>cal.setTimeInMillis(mTime);
+<tab><tab>return (java.util.GregorianCalendar) cal;
+<tab>}
+-----------------
+getClassWithMethodsHierarchy(<clazz>)
+-----------------
+<tab>public static java.util.List<Class> getClassWithMethodsHierarchy(Class<?> clazz){
+<tab><tab>java.util.List<Class> classesWithParent = new java.util.ArrayList<>();
+<tab><tab>Class<?> currentClass = clazz;
+<tab><tab>while (currentClass.getDeclaredFields().length > 0) {
+<tab><tab><tab>classesWithParent.add(currentClass);
+<tab><tab><tab>currentClass = currentClass.getSuperclass();
+<tab><tab>}
+<tab><tab>return classesWithParent;
+<tab>}
+-----------------
+getAllFieldsOfObject(<obj>)
+-----------------
+<tab>public static java.util.List<java.lang.reflect.Field> getAllFieldsOfObject(Object obj) {
+<tab><tab>java.util.List<java.lang.reflect.Field> allFields = new java.util.ArrayList<>();
+<tab><tab>for(Class c : getClassWithMethodsHierarchy(obj.getClass())) {
+<tab><tab><tab>allFields.addAll(java.util.Arrays.asList(c.getDeclaredFields()));
+<tab><tab>}
+<tab><tab>return allFields;
+<tab>}
+-----------------
+notPublicAssignment(<obj>, <fName>, <value>)
+-----------------
+<tab>public static void notPublicAssignment(Object obj, String fieldName, Object value) {
+<tab><tab>try {
+<tab><tab><tab>for(java.lang.reflect.Field f : getAllFieldsOfObject(obj)) {
+<tab><tab><tab><tab>if(f.getName().equals(fieldName)) {
+<tab><tab><tab><tab><tab>boolean currentAccessible = f.isAccessible();
+<tab><tab><tab><tab><tab>f.setAccessible(true);
+<tab><tab><tab><tab><tab>f.set(obj, value);
+<tab><tab><tab><tab><tab>f.setAccessible(currentAccessible);
+<tab><tab><tab><tab>}
+<tab><tab><tab>}
+<tab><tab>} catch(Exception ex) {}
+<tab>}
+-----------------
+newInstanceHard(<type>)
+-----------------
+<tab>public static Object newInstanceHard(Class type) {
+<tab><tab>try {
+<tab><tab><tab>java.lang.reflect.Constructor mungedConstructor = newConstructorForSerialization(type, getJavaLangObjectConstructor());
+<tab><tab><tab>mungedConstructor.setAccessible(true);
+<tab><tab><tab>return mungedConstructor.newInstance((Object[]) null);
+<tab><tab>} catch(Exception e) {
+<tab><tab><tab>throw new IllegalStateException(e);
+<tab><tab>}
+<tab>}
+-----------------
+getJavaLangObjectConstructor()
+-----------------
+<tab>public static java.lang.reflect.Constructor<Object> getJavaLangObjectConstructor() {
+<tab><tab>try {
+<tab><tab><tab>return Object.class.getConstructor((Class[]) null);
+<tab><tab>} catch(NoSuchMethodException e) {
+<tab><tab><tab>throw new IllegalStateException(e);
+<tab><tab>}
+<tab>}
+-----------------
+getJavaLangObjectConstructor(<type>, <constructor>)
+-----------------
+<tab>public static java.lang.reflect.Constructor newConstructorForSerialization(Class type, java.lang.reflect.Constructor<?> constructor) {
+<tab><tab>Class<?> reflectionFactoryClass = getReflectionFactoryClass();
+<tab><tab>Object reflectionFactory = createReflectionFactory(reflectionFactoryClass);
+<tab><tab>java.lang.reflect.Method newConstructorForSerializationMethod = getNewConstructorForSerializationMethod(reflectionFactoryClass);
+<tab><tab>try {
+<tab><tab><tab>return (java.lang.reflect.Constructor) newConstructorForSerializationMethod.invoke(reflectionFactory, type, constructor);
+<tab><tab>} catch(Exception e) {
+<tab><tab><tab>throw new IllegalStateException(e);
+<tab><tab>}
+<tab>}
+-----------------
+getReflectionFactoryClass()
+-----------------
+<tab>public static Class<?> getReflectionFactoryClass() {
+<tab><tab>try {
+<tab><tab><tab>return Class.forName("sun.reflect.ReflectionFactory");
+<tab><tab>} catch(ClassNotFoundException e) {
+<tab><tab><tab>throw new IllegalStateException(e);
+<tab><tab>}
+<tab>}
+-----------------
+createReflectionFactory(<reflectionFactoryClass>)
+-----------------
+<tab>public static Object createReflectionFactory(Class<?> reflectionFactoryClass) {
+<tab><tab>try {
+<tab><tab><tab>java.lang.reflect.Method method = reflectionFactoryClass.getDeclaredMethod("getReflectionFactory");
+<tab><tab><tab>return method.invoke(null);
+<tab><tab>} catch(Exception e) {
+<tab><tab><tab>throw new IllegalStateException(e);
+<tab><tab>}
+<tab>}
+-----------------
+getNewConstructorForSerializationMethod(<reflectionFactoryClass>)
+-----------------
+<tab>public static java.lang.reflect.Method getNewConstructorForSerializationMethod(Class<?> reflectionFactoryClass) {
+<tab><tab>try {
+<tab><tab><tab>return reflectionFactoryClass.getDeclaredMethod("newConstructorForSerialization", Class.class, java.lang.reflect.Constructor.class);
+<tab><tab>} catch(NoSuchMethodException e) {
+<tab><tab><tab>throw new IllegalStateException(e);
+<tab><tab>}
+<tab>}
+-----------------
