@@ -1,5 +1,8 @@
 package org.object2source;
 
+import org.clapper.util.classutil.ClassFinder;
+import org.clapper.util.classutil.ClassInfo;
+import org.clapper.util.classutil.SubclassClassFilter;
 import org.object2source.dto.InstanceCreateData;
 import org.object2source.dto.ProviderInfo;
 import org.object2source.dto.ProviderResult;
@@ -15,10 +18,7 @@ import org.object2source.extension.maps.UnmodSortedMapExtension;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.object2source.util.AssigmentUtil.*;
 import static org.object2source.util.GenerationUtil.*;
@@ -34,6 +34,7 @@ public class SourceGenerator implements TypeGenerator {
     private boolean exceptionWhenMaxODepth;
 
     private List<Extension> extensions;
+    private Set<String> extensionClasses;
 
     public SourceGenerator() {
         this("    ", new HashSet<String>());
@@ -52,7 +53,9 @@ public class SourceGenerator implements TypeGenerator {
         this.commonMethodsClassName = commonMethodsClassName;
         this.commonMethods = getCommonMethods(tabSymb);
         this.extensions =  new ArrayList<>();
+        this.extensionClasses = new HashSet<>();
         initEmbeddedExtensions();
+        initClassPathExtensions();
     }
 
     private void initEmbeddedExtensions() {
@@ -67,6 +70,23 @@ public class SourceGenerator implements TypeGenerator {
         registerExtension(new UnmodSortedMapExtension());
         registerExtension(new UnmodMapExtension());
         registerExtension(new BaseMapsExtension());
+    }
+
+    private void initClassPathExtensions() {
+        Set<ClassInfo> classes = new HashSet<>();
+        ClassFinder cf = new ClassFinder();
+        cf.addClassPath();
+        cf.findClasses(classes, new SubclassClassFilter(Extension.class));
+        for (ClassInfo ci : classes) {
+            if (Modifier.isAbstract(ci.getModifier()) || Modifier.isInterface(ci.getModifier())) continue;
+            try {
+                Extension ext = (Extension) Class.forName(ci.getClassName()).newInstance();
+                registerExtension(ext);
+            } catch (ReflectiveOperationException roe) {
+                System.err.println("Cant't register extension " + ci.getClassName() + ". " + roe.getMessage());
+                roe.printStackTrace();
+            }
+        }
     }
 
     public boolean isExceptionWhenMaxODepth() {
@@ -304,11 +324,15 @@ public class SourceGenerator implements TypeGenerator {
         if (extension instanceof EmbeddedExtension) {
             ((EmbeddedExtension) extension).setSourceGenerator(this);
         }
-        extensions.add(extension);
+        if (!extensionClasses.contains(extension.getClass().getName())) {
+            extensions.add(extension);
+            extensionClasses.add(extension.getClass().getName());
+        }
     }
 
     @Override
     public Extension findExtension(Class clazz) {
+        // Search in registered extensions
         for (Extension ext : extensions) {
             if (ext.isTypeSupported(clazz)) return ext;
         }
