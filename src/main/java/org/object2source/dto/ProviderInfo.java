@@ -10,6 +10,11 @@ public class ProviderInfo implements Serializable {
     public ProviderInfo() {
     }
 
+    public ProviderInfo(String methodName, String methodBody) {
+        this.methodName = methodName;
+        this.methodBody = methodBody;
+    }
+
     public String getMethodName() {
         return methodName;
     }
