@@ -52,10 +52,10 @@ public class SourceGenerator implements TypeGenerator {
         this.commonMethodsClassName = commonMethodsClassName;
         this.commonMethods = getCommonMethods(tabSymb);
         this.extensions =  new ArrayList<>();
-        initEmbededExtensions();
+        initEmbeddedExtensions();
     }
 
-    private void initEmbededExtensions() {
+    private void initEmbeddedExtensions() {
         registerExtension(new ArraysExtension());
         registerExtension(new ArraysArrayListExtension());
         registerExtension(new EmptyListExtension());
