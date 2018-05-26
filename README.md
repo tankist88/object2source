@@ -1,15 +1,15 @@
 # object2source #
 
-Библиотека для генерации исходного кода, создающего экземпляр объекта, который подается на вход.
+A library for generating the source code that creates an instance of the object that is submitted to the input.
 
-Пример вызова:
+Example:
 
 ```java
 TestObj testObj = new TestObj();
 (new SourceGenerator()).createDataProviderMethod(testObj);
 ```
 
-Результат:
+Result:
 ```java
 private static org.object2source.TestObj getTestObj_240650537() {
     org.object2source.TestObj testObj = new org.object2source.TestObj();
@@ -51,6 +51,6 @@ private static org.object2source.TestObj[] getArray_1277181601() {
 }
 ```
 
-### Контакты ###
+### Contacts ###
 
 * Repo owner - Alexey Ustinov (tankist88@gmail.com)
