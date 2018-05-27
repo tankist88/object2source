@@ -10,7 +10,7 @@ public interface Extension {
      * @param clazz - class for which need to check source code generation support
      * @return <b>true<b/> if code generation supported, <b>false</b> otherwise
      */
-    boolean isTypeSupported(Class clazz);
+    boolean isTypeSupported(Class<?> clazz);
 
     /**
      * Fill body of method which generate source code for create instance of object

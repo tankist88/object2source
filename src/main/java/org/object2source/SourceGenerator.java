@@ -114,6 +114,10 @@ public class SourceGenerator implements TypeGenerator {
     }
 
     private InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
+        return generateObjInstance(obj, classHierarchy, objectDepth, true);
+    }
+
+    public InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth, boolean createInst) throws Exception {
         if (obj == null || exclusionType(obj.getClass())) {
             return new InstanceCreateData("return null;\n");
         }
@@ -131,8 +135,10 @@ public class SourceGenerator implements TypeGenerator {
         InstanceCreateData simpleInstance = getInstanceCreateData(obj, true, objectDepth);
         if (simpleInstance != null) {
             instBuilder.append(tabSymb).append("return ").append(simpleInstance.getInstanceCreator()).append(";\n");
-        } else if (!Modifier.isPrivate(clazz.getModifiers())) {
-            instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
+        } else {
+            if(createInst) {
+                instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
+            }
             for (Field field : getAllFieldsOfClass(classHierarchy)) {
                 boolean deniedModifier =
                                 Modifier.isStatic(field.getModifiers()) ||
@@ -165,8 +171,6 @@ public class SourceGenerator implements TypeGenerator {
                 result.getDataProviderMethods().addAll(instData.getDataProviderMethods());
             }
             instBuilder.append(tabSymb).append(tabSymb).append("return ").append(getInstName(clazz)).append(";\n");
-        } else {
-            instBuilder.append(tabSymb).append("return null;\n");
         }
         result.setInstanceCreator(instBuilder.toString());
         return result;

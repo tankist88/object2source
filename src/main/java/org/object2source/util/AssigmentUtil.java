@@ -41,7 +41,11 @@ public class AssigmentUtil {
         }
     }
 
-    static String getConstructorCall(Class instType, String className) {
+    public static String getConstructorCall(Class instType, String commonClassName) {
+        return getConstructorCall(instType, instType, commonClassName);
+    }
+
+    public static String getConstructorCall(Class instType, Class retType, String commonClassName) {
         boolean noParamConstructorFound = false;
         if(instType.getDeclaredConstructors().length > 0) {
             for (Constructor c : instType.getDeclaredConstructors()) {
@@ -55,12 +59,13 @@ public class AssigmentUtil {
             noParamConstructorFound = true;
         }
         String result;
-        if(noParamConstructorFound) {
+        if(noParamConstructorFound && !Modifier.isPrivate(instType.getModifiers())) {
             result = "new " + instType.getName().replaceAll("\\$", ".") + "();";
         } else {
-            String classAppend = className != null ? className + "." : "";
-            String typeName = instType.getName().replaceAll("\\$", ".");
-            result = "(" + typeName + ") " + classAppend + "newInstanceHard(<type>);".replaceAll("<type>", typeName + ".class");
+            String classAppend = commonClassName != null ? commonClassName + "." : "";
+            String instTypeName = instType.getName().replaceAll("\\$", ".");
+            String retTypeName = retType.getName().replaceAll("\\$", ".");
+            result = "(" + retTypeName + ") " + classAppend + "newInstanceHard(<type>);".replaceAll("<type>", "Class.forName(\"" + instTypeName + "\")");
         }
         return result;
     }

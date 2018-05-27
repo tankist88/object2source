@@ -126,7 +126,7 @@ public class GenerationUtil {
 
     public static String createInstStr(Class clazz, Class instType, String commonMethodsClassName) {
         return  getClearedClassName(clazz.getName()) + " " +
-                getInstName(instType) + " = " + getConstructorCall(instType, commonMethodsClassName);
+                getInstName(clazz) + " = " + getConstructorCall(instType, clazz, commonMethodsClassName);
     }
 
     public static String getInstName(Class clazz) {
