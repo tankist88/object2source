@@ -15,15 +15,14 @@ import org.object2source.extension.maps.BaseMapsExtension;
 import org.object2source.extension.maps.EmptyMapExtension;
 import org.object2source.extension.maps.UnmodMapExtension;
 import org.object2source.extension.maps.UnmodSortedMapExtension;
-import org.object2source.util.GenerationUtil;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.reflect.Modifier.*;
 import static org.object2source.util.AssigmentUtil.*;
 import static org.object2source.util.GenerationUtil.*;
 
@@ -82,7 +81,7 @@ public class SourceGenerator implements TypeGenerator {
         cf.addClassPath();
         cf.findClasses(classes, new SubclassClassFilter(Extension.class));
         for (ClassInfo ci : classes) {
-            if (Modifier.isAbstract(ci.getModifier()) || Modifier.isInterface(ci.getModifier())) continue;
+            if (isAbstract(ci.getModifier()) || isInterface(ci.getModifier())) continue;
             try {
                 Extension ext = (Extension) Class.forName(ci.getClassName()).newInstance();
                 registerExtension(ext);
@@ -139,9 +138,9 @@ public class SourceGenerator implements TypeGenerator {
             instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
             for (Field field : getAllFieldsOfClass(classHierarchy)) {
                 boolean deniedModifier =
-                                Modifier.isStatic(field.getModifiers()) ||
-                                Modifier.isFinal(field.getModifiers()) ||
-                                Modifier.isNative(field.getModifiers());
+                                isStatic(field.getModifiers()) ||
+                                isFinal(field.getModifiers()) ||
+                                isNative(field.getModifiers());
                 if (deniedModifier || exclusionType(field.getType()) || (!field.getType().isPrimitive() && getFieldValue(field, obj) == null)) continue;
                 InstanceCreateData instData = getInstanceCreateData(getFieldValue(field, obj), false, objectDepth);
                 if (instData == null) continue;
@@ -154,8 +153,8 @@ public class SourceGenerator implements TypeGenerator {
                         fieldName = field.getName();
                     }
                 }
-                if (Modifier.isPrivate(clazz.getModifiers()) || setterNotExists(fieldName, field, classHierarchy)) {
-                    if (Modifier.isPublic(field.getModifiers())) {
+                if (isPrivate(clazz.getModifiers()) || setterNotExists(fieldName, field, classHierarchy)) {
+                    if (isPublic(field.getModifiers())) {
                         instBuilder.append(getFieldAssignment(tabSymb, obj, fieldName, instData.getInstanceCreator()));
                     } else {
                         instBuilder .append(tabSymb)
@@ -287,7 +286,7 @@ public class SourceGenerator implements TypeGenerator {
             fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(clazz), objectDepth);
         }
 
-        Class<?> actClass = Modifier.isPrivate(clazz.getModifiers()) ? GenerationUtil.getFirstPublicType(clazz) : clazz;
+        Class<?> actClass = isPrivate(clazz.getModifiers()) ? getFirstPublicType(clazz) : clazz;
         String typeName = extension != null ? extension.getActualType(obj) : actClass.getName();
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
