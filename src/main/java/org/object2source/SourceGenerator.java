@@ -15,10 +15,14 @@ import org.object2source.extension.maps.BaseMapsExtension;
 import org.object2source.extension.maps.EmptyMapExtension;
 import org.object2source.extension.maps.UnmodMapExtension;
 import org.object2source.extension.maps.UnmodSortedMapExtension;
+import org.object2source.util.GenerationUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.object2source.util.AssigmentUtil.*;
 import static org.object2source.util.GenerationUtil.*;
@@ -113,11 +117,7 @@ public class SourceGenerator implements TypeGenerator {
         this.maxObjectDepth = maxObjectDepth;
     }
 
-    private InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
-        return generateObjInstance(obj, classHierarchy, objectDepth, true);
-    }
-
-    public InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth, boolean createInst) throws Exception {
+    public InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
         if (obj == null || exclusionType(obj.getClass())) {
             return new InstanceCreateData("return null;\n");
         }
@@ -136,9 +136,7 @@ public class SourceGenerator implements TypeGenerator {
         if (simpleInstance != null) {
             instBuilder.append(tabSymb).append("return ").append(simpleInstance.getInstanceCreator()).append(";\n");
         } else {
-            if(createInst) {
-                instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
-            }
+            instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
             for (Field field : getAllFieldsOfClass(classHierarchy)) {
                 boolean deniedModifier =
                                 Modifier.isStatic(field.getModifiers()) ||
@@ -156,7 +154,7 @@ public class SourceGenerator implements TypeGenerator {
                         fieldName = field.getName();
                     }
                 }
-                if (setterNotExists(fieldName, field, classHierarchy)) {
+                if (Modifier.isPrivate(clazz.getModifiers()) || setterNotExists(fieldName, field, classHierarchy)) {
                     if (Modifier.isPublic(field.getModifiers())) {
                         instBuilder.append(getFieldAssignment(tabSymb, obj, fieldName, instData.getInstanceCreator()));
                     } else {
@@ -279,20 +277,30 @@ public class SourceGenerator implements TypeGenerator {
         objectDepth--;
 
         StringBuilder bodyBuilder = new StringBuilder();
-        
-        Extension extension = findExtension(obj.getClass());
+
+        Class<?> clazz = obj.getClass();
+
+        Extension extension = findExtension(clazz);
         if (extension != null) {
             extension.fillMethodBody(bodyBuilder, providers, objectDepth, obj);
         } else {
-            fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(obj.getClass()), objectDepth);
+            fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(clazz), objectDepth);
         }
 
-        String typeName = extension != null ? extension.getActualType(obj) : obj.getClass().getName();
+        Class<?> actClass = Modifier.isPrivate(clazz.getModifiers()) ? GenerationUtil.getFirstPublicType(clazz) : clazz;
+        String typeName = extension != null ? extension.getActualType(obj) : actClass.getName();
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
-        String method = tabSymb + "public static " +
-                typeName.replaceAll("\\$", ".") + " " + providerMethodName +
-                " {\n" + methodBody + tabSymb + "}\n";
+
+        String method = tabSymb +
+                        "public static " +
+                        typeName.replaceAll("\\$", ".") +
+                        " " +
+                        providerMethodName +
+                        " throws Exception {\n" +
+                        methodBody +
+                        tabSymb +
+                        "}\n";
 
         ProviderResult result = new ProviderResult();
         result.setEndPoint(new ProviderInfo(providerMethodName, method));

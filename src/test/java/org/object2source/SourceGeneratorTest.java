@@ -3,6 +3,7 @@ package org.object2source;
 import org.object2source.dto.InstanceCreateData;
 import org.object2source.dto.ProviderInfo;
 import org.object2source.dto.ProviderResult;
+import org.object2source.test.PrivateStaticClassTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -134,5 +135,14 @@ public class SourceGeneratorTest {
         assertTrue(pr.getEndPoint().getMethodBody().contains("array[2] = '\\n';"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("array[3] = '$';"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("array[4] = '%';"));
+    }
+
+    @Test
+    public void privateStaticClassTest() {
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createDataProviderMethod(PrivateStaticClassTest.getTestClass());
+        for(ProviderInfo pi : pr.getProviders()) {
+            System.out.println(pi.getMethodBody());
+        }
     }
 }

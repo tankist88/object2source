@@ -120,13 +120,26 @@ public class GenerationUtil {
         return clearedClassName.substring(0, clearedClassName.indexOf(firstClassName) - 1);
     }
 
+    public static Class getFirstPublicType(Class clazz) {
+        for(Class c : getClassHierarchy(clazz)) {
+            if(Modifier.isPublic(c.getModifiers()) && !Modifier.isAbstract(c.getModifiers())) {
+                return c;
+            }
+        }
+        return getInterfacesHierarchy(clazz).get(0);
+    }
+
     public static String createInstStr(Class clazz, String commonMethodsClassName) {
-        return createInstStr(clazz, clazz, commonMethodsClassName);
+        if(Modifier.isPrivate(clazz.getModifiers())) {
+            return createInstStr(getFirstPublicType(clazz), clazz, commonMethodsClassName);
+        } else {
+            return createInstStr(clazz, clazz, commonMethodsClassName);
+        }
     }
 
     public static String createInstStr(Class clazz, Class instType, String commonMethodsClassName) {
         return  getClearedClassName(clazz.getName()) + " " +
-                getInstName(clazz) + " = " + getConstructorCall(instType, clazz, commonMethodsClassName);
+                getInstName(instType) + " = " + getConstructorCall(instType, clazz, commonMethodsClassName);
     }
 
     public static String getInstName(Class clazz) {

@@ -63,9 +63,8 @@ public class AssigmentUtil {
             result = "new " + instType.getName().replaceAll("\\$", ".") + "();";
         } else {
             String classAppend = commonClassName != null ? commonClassName + "." : "";
-            String instTypeName = instType.getName().replaceAll("\\$", ".");
             String retTypeName = retType.getName().replaceAll("\\$", ".");
-            result = "(" + retTypeName + ") " + classAppend + "newInstanceHard(<type>);".replaceAll("<type>", "Class.forName(\"" + instTypeName + "\")");
+            result = "(" + retTypeName + ") " + classAppend + "newInstanceHard(<type>);".replace("<type>", "Class.forName(\"" + instType.getName() + "\")");
         }
         return result;
     }
