@@ -6,10 +6,18 @@ Example:
 
 ```java
 TestObj testObj = new TestObj();
-(new SourceGenerator()).createDataProviderMethod(testObj);
+ProviderResult pr = (new SourceGenerator()).createDataProviderMethod(testObj);
 ```
 
-Result:
+Print result:
+```java
+for(ProviderInfo pi : pr.getProviders()) {
+    System.out.println(pi.getMethodBody());
+}
+```
+
+Example output:
+
 ```java
 private static org.object2source.TestObj getTestObj_240650537() {
     org.object2source.TestObj testObj = new org.object2source.TestObj();
@@ -49,6 +57,12 @@ private static org.object2source.TestObj[] getArray_1277181601() {
     array[9] = null;
     return array;
 }
+```
+
+### Installation ###
+
+```text
+mvn clean install
 ```
 
 ### Contacts ###
