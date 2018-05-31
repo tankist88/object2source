@@ -6,21 +6,14 @@ import org.object2source.dto.ProviderResult;
 import org.object2source.test.Cyclic1;
 import org.object2source.test.Cyclic2;
 import org.object2source.test.PrivateStaticClassTest;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 import java.util.*;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 public class SourceGeneratorTest {
-    @BeforeClass
-    private void setUp() {
-    }
-
     @Test
     public void testCreateDataProviderMethod() {
         String str = "text \"%ggg%\"<br />text<br />text";
@@ -49,7 +42,7 @@ public class SourceGeneratorTest {
         testObj.arrayListOfArrayList.add(Arrays.asList(1,2,3));
         testObj.arrayListOfArrayList.add(Arrays.asList(1,2));
 
-        testObj.doubleList = Collections.singletonList(new Double(1.5));
+        testObj.doubleList = Collections.singletonList(1.5d);
 
         testObj.getTestObjList().add(BigDecimal.ZERO);
         testObj.getTestObjList().add(new BigDecimal(50000.0));
@@ -166,7 +159,5 @@ public class SourceGeneratorTest {
         sg2.setExceptionWhenMaxODepth(false);
         ProviderResult pr2 = sg2.createDataProviderMethod(c1);
         assertNotEquals(pr2, null);
-
-        System.out.println(pr2.getEndPoint().getMethodBody());
     }
 }

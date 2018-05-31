@@ -27,7 +27,7 @@ import static org.object2source.util.AssigmentUtil.*;
 import static org.object2source.util.GenerationUtil.*;
 
 public class SourceGenerator implements TypeGenerator {
-    static final int DEFAULT_MAX_DEPTH = 30;
+    static final int DEFAULT_MAX_DEPTH = 25;
 
     private Set<String> packageExclusions;
     private int maxObjectDepth;
@@ -49,10 +49,13 @@ public class SourceGenerator implements TypeGenerator {
         this(tabSymb, packageExclusions, null);
     }
     public SourceGenerator(String tabSymb, Set<String> packageExclusions, String commonMethodsClassName) {
+        this(tabSymb, packageExclusions, commonMethodsClassName, true);
+    }
+    public SourceGenerator(String tabSymb, Set<String> packageExclusions, String commonMethodsClassName, boolean exceptionWhenMaxODepth) {
         this.tabSymb = tabSymb;
         this.packageExclusions = packageExclusions;
         this.maxObjectDepth = DEFAULT_MAX_DEPTH;
-        this.exceptionWhenMaxODepth = true;
+        this.exceptionWhenMaxODepth = exceptionWhenMaxODepth;
         this.commonMethodsClassName = commonMethodsClassName;
         this.commonMethods = getCommonMethods(tabSymb);
         this.extensions =  new ArrayList<>();
@@ -116,7 +119,7 @@ public class SourceGenerator implements TypeGenerator {
         this.maxObjectDepth = maxObjectDepth;
     }
 
-    public InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
+    private InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
         if (obj == null || exclusionType(obj.getClass())) {
             return new InstanceCreateData("return null;\n");
         }
