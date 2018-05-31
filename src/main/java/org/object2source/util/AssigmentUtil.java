@@ -59,7 +59,7 @@ public class AssigmentUtil {
             noParamConstructorFound = true;
         }
         String result;
-        if(noParamConstructorFound && !Modifier.isPrivate(instType.getModifiers())) {
+        if(noParamConstructorFound && Modifier.isPublic(instType.getModifiers())) {
             result = "new " + instType.getName().replaceAll("\\$", ".") + "();";
         } else {
             String classAppend = commonClassName != null ? commonClassName + "." : "";

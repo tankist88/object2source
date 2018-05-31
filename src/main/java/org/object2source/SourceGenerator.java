@@ -153,7 +153,7 @@ public class SourceGenerator implements TypeGenerator {
                         fieldName = field.getName();
                     }
                 }
-                if (isPrivate(clazz.getModifiers()) || setterNotExists(fieldName, field, classHierarchy)) {
+                if (!isPublic(clazz.getModifiers()) || setterNotExists(fieldName, field, classHierarchy)) {
                     if (isPublic(field.getModifiers())) {
                         instBuilder.append(getFieldAssignment(tabSymb, obj, fieldName, instData.getInstanceCreator()));
                     } else {
@@ -260,6 +260,8 @@ public class SourceGenerator implements TypeGenerator {
     @Override
     public ProviderResult createDataProviderMethod(Object obj) {
         if (obj == null || exclusionType(obj.getClass())) return null;
+        boolean anonymousClass = getLastClassShort(obj.getClass().getName()).matches("\\d+");
+        if(anonymousClass) return null;
         Class<?> clazz = obj.getClass();
         String fieldName = clazz.isArray() ? "array" : getInstName(clazz.getName(), false);
         int objectDepth = maxObjectDepth;
@@ -286,7 +288,7 @@ public class SourceGenerator implements TypeGenerator {
             fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(clazz), objectDepth);
         }
 
-        Class<?> actClass = isPrivate(clazz.getModifiers()) ? getFirstPublicType(clazz) : clazz;
+        Class<?> actClass = !isPublic(clazz.getModifiers()) ? getFirstPublicType(clazz) : clazz;
         String typeName = extension != null ? extension.getActualType(obj) : actClass.getName();
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());

@@ -108,6 +108,12 @@ public class GenerationUtil {
         return arr[arr.length - 1];
     }
 
+    public static String getOwnerParentClass(String fullClassName) {
+        if(!fullClassName.contains("$")) return fullClassName;
+        String lastClassName = getLastClassShort(fullClassName);
+        return fullClassName.substring(0, fullClassName.indexOf(lastClassName) - 1);
+    }
+
     public static String getClassShort(String fullClassName) {
         String clearedClassName = getClearedClassName(fullClassName);
         String firstClassName = getFirstClassName(fullClassName);
@@ -122,18 +128,18 @@ public class GenerationUtil {
 
     public static Class getFirstPublicType(Class clazz) {
         for(Class c : getClassHierarchy(clazz)) {
-            if(Modifier.isPublic(c.getModifiers()) && !Modifier.isAbstract(c.getModifiers())) {
-                return c;
-            }
+            if(Modifier.isPublic(c.getModifiers())) return c;
         }
-        return getInterfacesHierarchy(clazz).get(0);
+        List<Class> interfaces = getInterfacesHierarchy(clazz);
+        if(interfaces.size() > 0) return getInterfacesHierarchy(clazz).get(0);
+        else return clazz;
     }
 
     public static String createInstStr(Class clazz, String commonMethodsClassName) {
-        if(Modifier.isPrivate(clazz.getModifiers())) {
-            return createInstStr(getFirstPublicType(clazz), clazz, commonMethodsClassName);
-        } else {
+        if(Modifier.isPublic(clazz.getModifiers())) {
             return createInstStr(clazz, clazz, commonMethodsClassName);
+        } else {
+            return createInstStr(getFirstPublicType(clazz), clazz, commonMethodsClassName);
         }
     }
 

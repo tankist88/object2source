@@ -3,6 +3,8 @@ package org.object2source;
 import org.object2source.dto.InstanceCreateData;
 import org.object2source.dto.ProviderInfo;
 import org.object2source.dto.ProviderResult;
+import org.object2source.test.Cyclic1;
+import org.object2source.test.Cyclic2;
 import org.object2source.test.PrivateStaticClassTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -11,6 +13,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertTrue;
 
 public class SourceGeneratorTest {
@@ -144,5 +147,26 @@ public class SourceGeneratorTest {
         for(ProviderInfo pi : pr.getProviders()) {
             System.out.println(pi.getMethodBody());
         }
+    }
+
+    @Test
+    public void cyclicReferenceTest() {
+        Cyclic1 c1 = new Cyclic1();
+        Cyclic2 c2 = new Cyclic2();
+        c2.setField(c1);
+        c2.setId(123);
+        c1.setField(c2);
+        c1.setName("ggg");
+
+        SourceGenerator sg1 = new SourceGenerator();
+        ProviderResult pr1 = sg1.createDataProviderMethod(c1);
+        assertEquals(pr1, null);
+
+        SourceGenerator sg2 = new SourceGenerator();
+        sg2.setExceptionWhenMaxODepth(false);
+        ProviderResult pr2 = sg2.createDataProviderMethod(c1);
+        assertNotEquals(pr2, null);
+
+        System.out.println(pr2.getEndPoint().getMethodBody());
     }
 }

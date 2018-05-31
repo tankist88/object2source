@@ -4,6 +4,7 @@ import org.object2source.util.GenerationUtil;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -90,5 +91,24 @@ public class GenerationUtilTest {
         if(method1 != null) {
             assertTrue(GenerationUtil.getMethodArgGenericTypes(method1, 0).contains(Integer.class));
         }
+    }
+
+    @Test
+    public void getParameterizedTypesTest() {
+        List<Integer> intList = new ArrayList<>();
+        List<Class> types = GenerationUtil.getParameterizedTypes(intList.getClass());
+        for(Class c : types) {
+            System.out.println(c.getName());
+        }
+    }
+
+    @Test
+    public void getOwnerParentClassTest() {
+        String actual1 = GenerationUtil.getOwnerParentClass("org.home.MyClass$InnerClass$1");
+        assertEquals(actual1, "org.home.MyClass$InnerClass");
+        String actual2 = GenerationUtil.getOwnerParentClass("org.home.MyClass$InnerClass");
+        assertEquals(actual2, "org.home.MyClass");
+        String actual3 = GenerationUtil.getOwnerParentClass("org.home.MyClass$1");
+        assertEquals(actual3, "org.home.MyClass");
     }
 }
