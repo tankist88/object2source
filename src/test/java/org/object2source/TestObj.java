@@ -46,12 +46,14 @@ public class TestObj {
     public TestObjNoEmptyConst noConst;
     public TestObj2 testObj2;
     private long contentLength;
+    private final String finalTest;
 
     public TestObj(){
-
+        this.finalTest = "ggg";
     }
 
     public TestObj(Long privateField, String testPrivateStr) {
+        this();
         this.privateField = privateField;
         this.testPrivateStr = testPrivateStr;
     }

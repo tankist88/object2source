@@ -4,7 +4,9 @@ import org.object2source.dto.ProviderInfo;
 
 import java.util.Set;
 
+import static java.lang.reflect.Modifier.isPublic;
 import static org.object2source.util.GenerationUtil.getClassHierarchyStr;
+import static org.object2source.util.GenerationUtil.getFirstPublicType;
 import static org.object2source.util.GenerationUtil.getInstName;
 
 public class BaseMapsExtension extends AbstractMapExtension {
@@ -15,7 +17,7 @@ public class BaseMapsExtension extends AbstractMapExtension {
 
     @Override
     public String getActualType(Object obj) {
-        return obj.getClass().getName();
+        return !isPublic(obj.getClass().getModifiers()) ? getFirstPublicType(obj.getClass()).getName() : obj.getClass().getName();
     }
 
     @Override

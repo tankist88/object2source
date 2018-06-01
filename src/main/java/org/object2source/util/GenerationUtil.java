@@ -3,6 +3,8 @@ package org.object2source.util;
 import java.lang.reflect.*;
 import java.util.*;
 
+import static org.apache.commons.lang3.StringUtils.replace;
+import static org.apache.commons.lang3.StringUtils.replaceEach;
 import static org.object2source.util.AssigmentUtil.getConstructorCall;
 
 public class GenerationUtil {
@@ -64,11 +66,11 @@ public class GenerationUtil {
         return interfaces;
     }
 
-    public static boolean setterNotExists(String fieldName, Field field, List<Class> classHierarchy) {
-        for (Method m : getAllMethodsOfClass(classHierarchy)) {
-            if (Modifier.isPublic(m.getModifiers()) && m.getName().startsWith("set" + upFirst(fieldName))) {
+    public static boolean setterNotExists(String fieldName, Field field, List<Method> allMethods) {
+        List<Class> fieldClassHierarchy = getClassHierarchy(field.getType());
+        for (Method m : allMethods) {
+            if (Modifier.isPublic(m.getModifiers()) && m.getName().equals("set" + upFirst(fieldName))) {
                 List<Class<?>> parameters = Arrays.asList(m.getParameterTypes());
-                List<Class> fieldClassHierarchy = getClassHierarchy(field.getType());
                 if (parameters.size() == 1 && fieldClassHierarchy.contains(parameters.get(0))) {
                     return false;
                 }
@@ -78,17 +80,15 @@ public class GenerationUtil {
     }
 
     public static String upFirst(String str) {
-        String firstChar = (str.charAt(0) + "").toUpperCase();
-        return firstChar + str.substring(1);
+        return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
     public static String downFirst(String str) {
-        String firstChar = (str.charAt(0) + "").toLowerCase();
-        return firstChar + str.substring(1);
+        return Character.toLowerCase(str.charAt(0)) + str.substring(1);
     }
 
     private static String getClearedClassName(String fullClassName) {
-        return fullClassName.replaceAll("\\$", ".").replaceAll(";", "");
+        return replaceEach(fullClassName, new String[] {"$", ";"}, new String[] {".", ""});
     }
 
     private static String getFirstClassName(String fullClassName) {
@@ -160,12 +160,12 @@ public class GenerationUtil {
         String shortClassName = getClassShort(className);
         StringBuilder instNameBuilder = new StringBuilder();
         if(underscore) instNameBuilder.append("_");
-        instNameBuilder.append((downFirst(shortClassName)).replaceAll("\\.", ""));
+        instNameBuilder.append(replace(downFirst(shortClassName), ".", ""));
         return instNameBuilder.toString();
     }
 
     public static String getDataProviderMethodName(String fieldName, int code) {
-        return "get" + (upFirst(fieldName).replaceAll("\\$", "_")) + "_" + (code + "").replaceAll("-", "_") + "()";
+        return "get" + replace(upFirst(fieldName), "$", "_") + "_" + replace(Integer.toString(code), "-", "_") + "()";
     }
 
     public static String createArrayElementString(String fieldName, String val, int index, String tabSymb) {

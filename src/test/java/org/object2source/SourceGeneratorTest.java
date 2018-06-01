@@ -14,8 +14,7 @@ import java.util.*;
 import static org.testng.Assert.*;
 
 public class SourceGeneratorTest {
-    @Test
-    public void testCreateDataProviderMethod() {
+    private TestObj createTestObj() {
         String str = "text \"%ggg%\"<br />text<br />text";
 
         TestObj testObj = new TestObj(50000L, str);
@@ -69,18 +68,35 @@ public class SourceGeneratorTest {
         testObj.charArr[2] = ']';
         testObj.charArr[3] = '$';
         testObj.charArr[4] = '%';
+        return testObj;
+    }
 
+    @Test
+    public void testCreateDataProviderMethod() {
         SourceGenerator sg = new SourceGenerator();
 
-        long start = System.currentTimeMillis();
-        ProviderResult pr = sg.createDataProviderMethod(testObj);
-        long end = (System.currentTimeMillis() - start);
+        ProviderResult pr = null;
+        int count;
+        long sum = 0;
+        long min = Long.MAX_VALUE;
+        long max = Long.MIN_VALUE;
+        for (count = 0; count < 100; count++) {
+            TestObj obj = createTestObj();
+            long start = System.currentTimeMillis();
+            pr = sg.createDataProviderMethod(obj);
+            long elapsed = (System.currentTimeMillis() - start);
+            sum += elapsed;
+            if(elapsed < min) min = elapsed;
+            if(elapsed > max) max = elapsed;
+        }
 
         for(ProviderInfo info : pr.getProviders()) {
             System.out.println(info.getMethodBody());
         }
 
-        System.out.println("Generation time: " + end);
+        System.out.println("Avg. generation time: " + ((double) sum)/(double)count + " ms");
+        System.out.println("Min. generation time: " + min + " ms");
+        System.out.println("Max. generation time: " + max + " ms");
     }
 
     @Test
@@ -138,7 +154,24 @@ public class SourceGeneratorTest {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(PrivateStaticClassTest.getTestClass());
         for(ProviderInfo pi : pr.getProviders()) {
-            System.out.println(pi.getMethodBody());
+            if(pi.getMethodName().startsWith("getNotPublic")) {
+                assertTrue(pi.getMethodBody().contains("" +
+                        "org.object2source.test.AbstractPublic _notPublic = " +
+                        "(org.object2source.test.AbstractPublic) newInstanceHard(" +
+                        "Class.forName(\"org.object2source.test.NotPublic\"));"));
+            } else if(pi.getMethodName().startsWith("getExamplePackagePrivateList")) {
+                assertTrue(pi.getMethodBody().contains("" +
+                        "java.util.ArrayList _examplePackagePrivateList = " +
+                        "(java.util.ArrayList) newInstanceHard(" +
+                        "Class.forName(\"org.object2source.test.ExamplePackagePrivateList\"));"));
+            } else if(pi.getMethodName().startsWith("getPrivateStaticClassTestTestClass")) {
+                assertTrue(pi.getMethodBody().contains(
+                        "org.object2source.test.TestClassInt _privateStaticClassTestTestClass = " +
+                        "(org.object2source.test.TestClassInt) newInstanceHard(" +
+                        "Class.forName(\"org.object2source.test.PrivateStaticClassTest$TestClass\"));"));
+                assertTrue(pi.getMethodBody().contains("notPublicAssignment(_privateStaticClassTestTestClass, \"id\", 1);"));
+                assertTrue(pi.getMethodBody().contains("notPublicAssignment(_privateStaticClassTestTestClass, \"name\", \"ggg\");"));
+            }
         }
     }
 
@@ -159,5 +192,13 @@ public class SourceGeneratorTest {
         sg2.setExceptionWhenMaxODepth(false);
         ProviderResult pr2 = sg2.createDataProviderMethod(c1);
         assertNotEquals(pr2, null);
+    }
+
+    @Test
+    public void finalFieldTest() {
+        TestObj tObj = new TestObj();
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createDataProviderMethod(tObj);
+        assertTrue(pr.getEndPoint().getMethodBody().contains("notPublicAssignment(_testObj, \"finalTest\", \"ggg\");"));
     }
 }

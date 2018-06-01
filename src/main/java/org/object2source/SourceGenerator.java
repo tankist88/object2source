@@ -17,6 +17,7 @@ import org.object2source.extension.maps.UnmodMapExtension;
 import org.object2source.extension.maps.UnmodSortedMapExtension;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +28,7 @@ import static org.object2source.util.AssigmentUtil.*;
 import static org.object2source.util.GenerationUtil.*;
 
 public class SourceGenerator implements TypeGenerator {
-    static final int DEFAULT_MAX_DEPTH = 25;
+    static final int DEFAULT_MAX_DEPTH = 10;
 
     private Set<String> packageExclusions;
     private int maxObjectDepth;
@@ -120,13 +121,10 @@ public class SourceGenerator implements TypeGenerator {
     }
 
     private InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
-        if (obj == null || exclusionType(obj.getClass())) {
-            return new InstanceCreateData("return null;\n");
-        }
         if (objectDepth <= 0 && exceptionWhenMaxODepth) {
             throw new ObjectDepthExceededException("Object depth exceeded. " + obj.getClass());
-        } else if (objectDepth <= 0) {
-            return new InstanceCreateData("return null;\n");
+        } else if (objectDepth <= 0 || obj == null || exclusionType(obj.getClass())) {
+            return new InstanceCreateData(tabSymb + "return null;\n");
         }
 
         InstanceCreateData result = new InstanceCreateData();
@@ -139,29 +137,18 @@ public class SourceGenerator implements TypeGenerator {
             instBuilder.append(tabSymb).append("return ").append(simpleInstance.getInstanceCreator()).append(";\n");
         } else {
             instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
+            List<Method> allMethods = getAllMethodsOfClass(classHierarchy);
             for (Field field : getAllFieldsOfClass(classHierarchy)) {
-                boolean deniedModifier =
-                                isStatic(field.getModifiers()) ||
-                                isFinal(field.getModifiers()) ||
-                                isNative(field.getModifiers());
+                boolean deniedModifier = isStatic(field.getModifiers()) || isNative(field.getModifiers());
                 if (deniedModifier || exclusionType(field.getType()) || (!field.getType().isPrimitive() && getFieldValue(field, obj) == null)) continue;
                 InstanceCreateData instData = getInstanceCreateData(getFieldValue(field, obj), false, objectDepth);
                 if (instData == null) continue;
                 String fieldName = field.getName();
-                if ((field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) &&
-                   field.getName().toUpperCase().startsWith("IS"))
-                {
-                    fieldName = field.getName().substring(2);
-                    if (setterNotExists(fieldName, field, classHierarchy)) {
-                        fieldName = field.getName();
-                    }
-                }
-                if (!isPublic(clazz.getModifiers()) || setterNotExists(fieldName, field, classHierarchy)) {
-                    if (isPublic(field.getModifiers())) {
+                if (!isPublic(clazz.getModifiers()) || setterNotExists(fieldName, field, allMethods)) {
+                    if (isPublic(field.getModifiers()) && !isFinal(field.getModifiers())) {
                         instBuilder.append(getFieldAssignment(tabSymb, obj, fieldName, instData.getInstanceCreator()));
                     } else {
-                        instBuilder .append(tabSymb)
-                                    .append(tabSymb)
+                        instBuilder .append(tabSymb).append(tabSymb)
                                     .append(getFieldNotPublicAssignment(obj, fieldName, instData.getInstanceCreator(), commonMethodsClassName))
                                     .append(";\n");
                     }
@@ -256,7 +243,6 @@ public class SourceGenerator implements TypeGenerator {
         } else if (!onlySimple) {
             result = new InstanceCreateData("null");
         }
-
         return result;
     }
 
@@ -296,15 +282,8 @@ public class SourceGenerator implements TypeGenerator {
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
 
-        String method = tabSymb +
-                        "public static " +
-                        typeName.replaceAll("\\$", ".") +
-                        " " +
-                        providerMethodName +
-                        " throws Exception {\n" +
-                        methodBody +
-                        tabSymb +
-                        "}\n";
+        String method = tabSymb + "public static " + typeName.replaceAll("\\$", ".") + " " +
+                        providerMethodName + " throws Exception {\n" + methodBody + tabSymb + "}\n";
 
         ProviderResult result = new ProviderResult();
         result.setEndPoint(new ProviderInfo(providerMethodName, method));
