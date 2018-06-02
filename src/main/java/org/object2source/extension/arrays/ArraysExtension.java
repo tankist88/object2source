@@ -7,7 +7,8 @@ import org.object2source.extension.AbstractEmbeddedExtension;
 import java.util.Set;
 
 import static java.lang.reflect.Modifier.isPublic;
-import static org.object2source.util.GenerationUtil.*;
+import static org.object2source.util.GenerationUtil.createArrayElementString;
+import static org.object2source.util.GenerationUtil.downFirst;
 
 public class ArraysExtension extends AbstractEmbeddedExtension {
     @Override
@@ -20,7 +21,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
         String canonicalName = obj.getClass().getCanonicalName();
         try {
             Class canonicalClazz = Class.forName(canonicalName.substring(0, canonicalName.length() - 2));
-            Class<?> actClass = !isPublic(canonicalClazz.getModifiers()) ? getFirstPublicType(canonicalClazz) : canonicalClazz;
+            Class actClass = !isPublic(canonicalClazz.getModifiers()) ? Object.class : canonicalClazz;
             return actClass.getName() + "[]";
         } catch (ClassNotFoundException e) {
             return canonicalName;
@@ -180,11 +181,35 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
 
         String typeName = getActualType(obj);
         String typeWithSize = new StringBuilder(typeName).insert(typeName.length() - 1, arraySize).toString();
+        String sourceCanonicalType = obj.getClass().getCanonicalName();
 
-        bb.append(getTabSymb()).append(getTabSymb())
-          .append(typeName).append(" ").append(downFirst(fieldName)).append(" = new ").append(typeWithSize).append(";\n");
+        bb.append(getTabSymb())
+          .append(getTabSymb())
+          .append(typeName)
+          .append(" ")
+          .append(downFirst(fieldName))
+          .append(" = ");
 
-        bb.append(arrayValues.toString());
-        bb.append(getTabSymb()).append(getTabSymb()).append("return ").append(downFirst(fieldName)).append(";\n");
+        if(typeName.equals(sourceCanonicalType)) {
+            bb.append("new ")
+              .append(typeWithSize)
+              .append(";\n");
+        } else {
+            String elementType = sourceCanonicalType.substring(0, sourceCanonicalType.length() - 2);
+            bb.append("(")
+              .append(typeName)
+              .append(") java.lang.reflect.Array.newInstance(Class.forName(\"")
+              .append(elementType)
+              .append("\"), ")
+              .append(arraySize)
+              .append(");\n");
+        }
+
+        bb.append(arrayValues.toString())
+          .append(getTabSymb())
+          .append(getTabSymb())
+          .append("return ")
+          .append(downFirst(fieldName))
+          .append(";\n");
     }
 }

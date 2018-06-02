@@ -32,17 +32,15 @@ getAllFieldsOfObject(<obj>)
 -----------------
 notPublicAssignment(<obj>, <fName>, <value>)
 -----------------
-<tab>public static void notPublicAssignment(Object obj, String fieldName, Object value) {
-<tab><tab>try {
-<tab><tab><tab>for(java.lang.reflect.Field f : getAllFieldsOfObject(obj)) {
-<tab><tab><tab><tab>if(f.getName().equals(fieldName)) {
-<tab><tab><tab><tab><tab>boolean currentAccessible = f.isAccessible();
-<tab><tab><tab><tab><tab>f.setAccessible(true);
-<tab><tab><tab><tab><tab>f.set(obj, value);
-<tab><tab><tab><tab><tab>f.setAccessible(currentAccessible);
-<tab><tab><tab><tab>}
+<tab>public static void notPublicAssignment(Object obj, String fieldName, Object value) throws IllegalAccessException {
+<tab><tab>for(java.lang.reflect.Field f : getAllFieldsOfObject(obj)) {
+<tab><tab><tab>if(f.getName().equals(fieldName)) {
+<tab><tab><tab><tab>boolean currentAccessible = f.isAccessible();
+<tab><tab><tab><tab>f.setAccessible(true);
+<tab><tab><tab><tab>f.set(obj, value);
+<tab><tab><tab><tab>f.setAccessible(currentAccessible);
 <tab><tab><tab>}
-<tab><tab>} catch(Exception ex) {}
+<tab><tab>}
 <tab>}
 -----------------
 newInstanceHard(<type>)
@@ -108,6 +106,24 @@ getNewConstructorForSerializationMethod(<reflectionFactoryClass>)
 <tab><tab><tab>return reflectionFactoryClass.getDeclaredMethod("newConstructorForSerialization", Class.class, java.lang.reflect.Constructor.class);
 <tab><tab>} catch(NoSuchMethodException e) {
 <tab><tab><tab>throw new IllegalStateException(e);
+<tab><tab>}
+<tab>}
+-----------------
+callConstructorReflection(<type>)
+-----------------
+<tab>public static Object callConstructorReflection(Class type) throws IllegalAccessException, java.lang.reflect.InvocationTargetException, InstantiationException {
+<tab><tab>java.lang.reflect.Constructor constructor = null;
+<tab><tab>for (java.lang.reflect.Constructor c : type.getDeclaredConstructors()) {
+<tab><tab><tab>if (c.getParameterTypes().length == 0) {
+<tab><tab><tab><tab>constructor = c;
+<tab><tab><tab><tab>break;
+<tab><tab><tab>}
+<tab><tab>}
+<tab><tab>if (constructor != null) {
+<tab><tab><tab>constructor.setAccessible(true);
+<tab><tab><tab>return constructor.newInstance((Object[]) null);
+<tab><tab>} else {
+<tab><tab><tab>return null;
 <tab><tab>}
 <tab>}
 -----------------

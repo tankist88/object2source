@@ -150,11 +150,6 @@ public class SourceGeneratorTest {
     }
 
     @Test
-    public void notPublicArraysGeneratorTest() {
-
-    }
-
-    @Test
     public void privateStaticClassTest() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(PrivateStaticClassTest.getTestClass());
@@ -162,12 +157,12 @@ public class SourceGeneratorTest {
             if(pi.getMethodName().startsWith("getNotPublic")) {
                 assertTrue(pi.getMethodBody().contains("" +
                         "org.object2source.test.AbstractPublic _notPublic = " +
-                        "(org.object2source.test.AbstractPublic) newInstanceHard(" +
+                        "(org.object2source.test.AbstractPublic) callConstructorReflection(" +
                         "Class.forName(\"org.object2source.test.NotPublic\"));"));
             } else if(pi.getMethodName().startsWith("getExamplePackagePrivateList")) {
                 assertTrue(pi.getMethodBody().contains("" +
                         "java.util.ArrayList _examplePackagePrivateList = " +
-                        "(java.util.ArrayList) newInstanceHard(" +
+                        "(java.util.ArrayList) callConstructorReflection(" +
                         "Class.forName(\"org.object2source.test.ExamplePackagePrivateList\"));"));
             } else if(pi.getMethodName().startsWith("getPrivateStaticClassTestTestClass")) {
                 assertTrue(pi.getMethodBody().contains(
@@ -177,9 +172,15 @@ public class SourceGeneratorTest {
                 assertTrue(pi.getMethodBody().contains("notPublicAssignment(_privateStaticClassTestTestClass, \"id\", 1);"));
                 assertTrue(pi.getMethodBody().contains("notPublicAssignment(_privateStaticClassTestTestClass, \"name\", \"ggg\");"));
             } else if(pi.getMethodName().startsWith("getArray")) {
-                assertTrue(pi.getMethodBody().contains(
-                        "org.object2source.test.AbstractPublic[] array = " +
-                        "new org.object2source.test.AbstractPublic[10];"));
+                assertTrue(pi.getMethodBody().contains("" +
+                        "java.lang.Object[] array = " +
+                        "(java.lang.Object[]) java.lang.reflect.Array.newInstance(" +
+                        "Class.forName(\"org.object2source.test.NotPublic\"), 10);"));
+            } else if(pi.getMethodName().startsWith("getPrivateStaticClassTestPrivateConstructor")) {
+                assertTrue(pi.getMethodBody().contains("" +
+                        "org.object2source.test.PrivateStaticClassTest.PrivateConstructor _privateStaticClassTestPrivateConstructor = " +
+                        "(org.object2source.test.PrivateStaticClassTest.PrivateConstructor) callConstructorReflection(" +
+                        "org.object2source.test.PrivateStaticClassTest.PrivateConstructor.class);"));
             }
         }
     }

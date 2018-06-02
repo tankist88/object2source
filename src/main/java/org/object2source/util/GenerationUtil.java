@@ -87,7 +87,7 @@ public class GenerationUtil {
         return Character.toLowerCase(str.charAt(0)) + str.substring(1);
     }
 
-    private static String getClearedClassName(String fullClassName) {
+    public static String getClearedClassName(String fullClassName) {
         return replaceEach(fullClassName, new String[] {"$", ";"}, new String[] {".", ""});
     }
 

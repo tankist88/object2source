@@ -7,12 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.object2source.util.GenerationUtil.ESCAPE_STRING_REGEX;
-import static org.object2source.util.GenerationUtil.ESCAPE_STRING_REPLACE;
+import static java.lang.reflect.Modifier.isPublic;
+import static org.object2source.util.GenerationUtil.*;
 
 public class AssigmentUtil {
     private static final String COMMON_METHODS_FILE = "common-methods.txt";
@@ -47,23 +46,31 @@ public class AssigmentUtil {
 
     public static String getConstructorCall(Class instType, Class retType, String commonClassName) {
         boolean noParamConstructorFound = false;
+        boolean publicConstructorFound = false;
         if(instType.getDeclaredConstructors().length > 0) {
             for (Constructor c : instType.getDeclaredConstructors()) {
-                if(!Modifier.isPublic(c.getModifiers())) continue;
                 if (c.getParameterTypes().length == 0) {
                     noParamConstructorFound = true;
+                    publicConstructorFound = isPublic(c.getModifiers());
                     break;
                 }
             }
         } else {
             noParamConstructorFound = true;
         }
+
+        String classAppend = commonClassName != null ? commonClassName + "." : "";
+        String retTypeName = getClearedClassName(retType.getName());
+        String instClearName = getClearedClassName(instType.getName());
+
         String result;
-        if(noParamConstructorFound && Modifier.isPublic(instType.getModifiers())) {
-            result = "new " + instType.getName().replaceAll("\\$", ".") + "();";
+        if (noParamConstructorFound && publicConstructorFound && isPublic(instType.getModifiers())) {
+            result = "new " + instClearName + "();";
+        } else if (noParamConstructorFound && isPublic(instType.getModifiers())) {
+            result = "(" + retTypeName + ") " + classAppend + "callConstructorReflection(<type>);".replace("<type>", instClearName + ".class");
+        } else if (noParamConstructorFound) {
+            result = "(" + retTypeName + ") " + classAppend + "callConstructorReflection(<type>);".replace("<type>", "Class.forName(\"" + instType.getName() + "\")");
         } else {
-            String classAppend = commonClassName != null ? commonClassName + "." : "";
-            String retTypeName = retType.getName().replaceAll("\\$", ".");
             result = "(" + retTypeName + ") " + classAppend + "newInstanceHard(<type>);".replace("<type>", "Class.forName(\"" + instType.getName() + "\")");
         }
         return result;

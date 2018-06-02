@@ -11,6 +11,7 @@ public class PrivateStaticClassTest {
         private NotPublic notPublic;
         private ExamplePackagePrivateList<Integer> examplePackagePrivateList;
         private NotPublic[] notPublicArray;
+        private PrivateConstructor pc;
 
         TestClass(int id, String name) {
             this.id = id;
@@ -22,6 +23,7 @@ public class PrivateStaticClassTest {
             this.notPublicArray = new NotPublic[10];
             this.notPublicArray[0] = new NotPublic();
             this.notPublicArray[5] = new NotPublic();
+            this.pc = new PrivateConstructor();
         }
 
         public int getId() {
@@ -55,6 +57,22 @@ public class PrivateStaticClassTest {
 
         public void setExamplePackagePrivateList(ExamplePackagePrivateList examplePackagePrivateList) {
             this.examplePackagePrivateList = examplePackagePrivateList;
+        }
+    }
+
+    public static class PrivateConstructor {
+        private int id;
+
+        private PrivateConstructor() {
+            this.id = 111;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
         }
     }
 }
