@@ -150,6 +150,11 @@ public class SourceGeneratorTest {
     }
 
     @Test
+    public void notPublicArraysGeneratorTest() {
+
+    }
+
+    @Test
     public void privateStaticClassTest() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(PrivateStaticClassTest.getTestClass());
@@ -171,6 +176,10 @@ public class SourceGeneratorTest {
                         "Class.forName(\"org.object2source.test.PrivateStaticClassTest$TestClass\"));"));
                 assertTrue(pi.getMethodBody().contains("notPublicAssignment(_privateStaticClassTestTestClass, \"id\", 1);"));
                 assertTrue(pi.getMethodBody().contains("notPublicAssignment(_privateStaticClassTestTestClass, \"name\", \"ggg\");"));
+            } else if(pi.getMethodName().startsWith("getArray")) {
+                assertTrue(pi.getMethodBody().contains(
+                        "org.object2source.test.AbstractPublic[] array = " +
+                        "new org.object2source.test.AbstractPublic[10];"));
             }
         }
     }

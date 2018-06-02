@@ -10,14 +10,18 @@ public class PrivateStaticClassTest {
         private String name;
         private NotPublic notPublic;
         private ExamplePackagePrivateList<Integer> examplePackagePrivateList;
+        private NotPublic[] notPublicArray;
 
         TestClass(int id, String name) {
             this.id = id;
             this.name = name;
             this.notPublic = new NotPublic();
-            this.examplePackagePrivateList = new ExamplePackagePrivateList<Integer>();
+            this.examplePackagePrivateList = new ExamplePackagePrivateList<>();
             this.examplePackagePrivateList.add(123);
             this.examplePackagePrivateList.add(321);
+            this.notPublicArray = new NotPublic[10];
+            this.notPublicArray[0] = new NotPublic();
+            this.notPublicArray[5] = new NotPublic();
         }
 
         public int getId() {

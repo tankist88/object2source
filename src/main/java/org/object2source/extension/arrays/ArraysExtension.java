@@ -6,8 +6,8 @@ import org.object2source.extension.AbstractEmbeddedExtension;
 
 import java.util.Set;
 
-import static org.object2source.util.GenerationUtil.createArrayElementString;
-import static org.object2source.util.GenerationUtil.downFirst;
+import static java.lang.reflect.Modifier.isPublic;
+import static org.object2source.util.GenerationUtil.*;
 
 public class ArraysExtension extends AbstractEmbeddedExtension {
     @Override
@@ -17,12 +17,18 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
 
     @Override
     public String getActualType(Object obj) {
-        return obj.getClass().getCanonicalName();
+        String canonicalName = obj.getClass().getCanonicalName();
+        try {
+            Class canonicalClazz = Class.forName(canonicalName.substring(0, canonicalName.length() - 2));
+            Class<?> actClass = !isPublic(canonicalClazz.getModifiers()) ? getFirstPublicType(canonicalClazz) : canonicalClazz;
+            return actClass.getName() + "[]";
+        } catch (ClassNotFoundException e) {
+            return canonicalName;
+        }
     }
 
     @Override
     public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj) throws Exception {
-        String typeName = getActualType(obj);
         String fieldName = "array";
 
         StringBuilder arrayValues = new StringBuilder();
@@ -171,9 +177,13 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
                 providers.addAll(data.getDataProviderMethods());
             }
         }
+
+        String typeName = getActualType(obj);
         String typeWithSize = new StringBuilder(typeName).insert(typeName.length() - 1, arraySize).toString();
-        bb.append(getTabSymb()).append(getTabSymb()).append(typeName).append(" ").append(downFirst(fieldName))
-                .append(" = new ").append(typeWithSize).append(";\n");
+
+        bb.append(getTabSymb()).append(getTabSymb())
+          .append(typeName).append(" ").append(downFirst(fieldName)).append(" = new ").append(typeWithSize).append(";\n");
+
         bb.append(arrayValues.toString());
         bb.append(getTabSymb()).append(getTabSymb()).append("return ").append(downFirst(fieldName)).append(";\n");
     }
