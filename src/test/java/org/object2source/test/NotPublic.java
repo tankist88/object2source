@@ -1,6 +1,6 @@
 package org.object2source.test;
 
-class NotPublic extends AbstractPublic {
+class NotPublic extends NotPublicAbstract {
     private String name;
 
     public String getName() {

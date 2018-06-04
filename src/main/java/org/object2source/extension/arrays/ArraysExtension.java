@@ -1,5 +1,6 @@
 package org.object2source.extension.arrays;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.object2source.dto.InstanceCreateData;
 import org.object2source.dto.ProviderInfo;
 import org.object2source.extension.AbstractEmbeddedExtension;
@@ -7,8 +8,7 @@ import org.object2source.extension.AbstractEmbeddedExtension;
 import java.util.Set;
 
 import static java.lang.reflect.Modifier.isPublic;
-import static org.object2source.util.GenerationUtil.createArrayElementString;
-import static org.object2source.util.GenerationUtil.downFirst;
+import static org.object2source.util.GenerationUtil.*;
 
 public class ArraysExtension extends AbstractEmbeddedExtension {
     @Override
@@ -18,13 +18,26 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
 
     @Override
     public String getActualType(Object obj) {
-        String canonicalName = obj.getClass().getCanonicalName();
+        return getClearedClassName(getActualClass(obj).getName()) + "[]";
+    }
+
+    private Class getActualClass(Object obj) {
+        Class canonicalClazz = getCanonicalClass(obj);
+        return !isPublic(canonicalClazz.getModifiers()) ? Object.class : canonicalClazz;
+    }
+
+    private Class getCanonicalClass(Object obj) {
         try {
-            Class canonicalClazz = Class.forName(canonicalName.substring(0, canonicalName.length() - 2));
-            Class actClass = !isPublic(canonicalClazz.getModifiers()) ? Object.class : canonicalClazz;
-            return actClass.getName() + "[]";
+            String canonicalName = obj.getClass().getCanonicalName();
+            String canonicalType = canonicalName.substring(0, canonicalName.length() - 2);
+            if (isPrimitive(canonicalType)) {
+                return ClassUtils.getClass(canonicalType);
+            } else {
+                String classname = obj.getClass().getName();
+                return ClassUtils.getClass(classname.substring(2, classname.length() - 1));
+            }
         } catch (ClassNotFoundException e) {
-            return canonicalName;
+            throw new IllegalStateException(e);
         }
     }
 
@@ -181,7 +194,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
 
         String typeName = getActualType(obj);
         String typeWithSize = new StringBuilder(typeName).insert(typeName.length() - 1, arraySize).toString();
-        String sourceCanonicalType = obj.getClass().getCanonicalName();
+        String sourceCanonicalType = getCanonicalClass(obj).getName() + "[]";
 
         bb.append(getTabSymb())
           .append(getTabSymb())

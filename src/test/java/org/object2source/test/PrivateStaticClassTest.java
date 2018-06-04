@@ -62,9 +62,29 @@ public class PrivateStaticClassTest {
 
     public static class PrivateConstructor {
         private int id;
+        private PrivateClassNoParents[] pcnp;
 
         private PrivateConstructor() {
             this.id = 111;
+            this.pcnp = new PrivateClassNoParents[5];
+            this.pcnp[0] = new PrivateClassNoParents();
+            this.pcnp[4] = new PrivateClassNoParents();
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+    }
+
+    private static class PrivateClassNoParents {
+        private int id;
+
+        private PrivateClassNoParents() {
+            this.id = 222;
         }
 
         public int getId() {

@@ -257,7 +257,7 @@ public class SourceGenerator implements TypeGenerator {
         try {
             return createDataProviderMethod(obj, fieldName, objectDepth);
         } catch (Exception ex) {
-            return null;
+            throw new IllegalStateException(ex);
         }
     }
 

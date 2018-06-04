@@ -75,7 +75,6 @@ public class SourceGeneratorTest {
     public void testCreateDataProviderMethod() {
         SourceGenerator sg = new SourceGenerator();
 
-        ProviderResult pr = null;
         int count;
         long sum = 0;
         long min = Long.MAX_VALUE;
@@ -83,15 +82,11 @@ public class SourceGeneratorTest {
         for (count = 0; count < 100; count++) {
             TestObj obj = createTestObj();
             long start = System.currentTimeMillis();
-            pr = sg.createDataProviderMethod(obj);
+            sg.createDataProviderMethod(obj);
             long elapsed = (System.currentTimeMillis() - start);
             sum += elapsed;
             if(elapsed < min) min = elapsed;
             if(elapsed > max) max = elapsed;
-        }
-
-        for(ProviderInfo info : pr.getProviders()) {
-            System.out.println(info.getMethodBody());
         }
 
         System.out.println("Avg. generation time: " + ((double) sum)/(double)count + " ms");
@@ -150,7 +145,7 @@ public class SourceGeneratorTest {
     }
 
     @Test
-    public void privateStaticClassTest() {
+    public void notPublicClassTest() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(PrivateStaticClassTest.getTestClass());
         for(ProviderInfo pi : pr.getProviders()) {
@@ -172,10 +167,17 @@ public class SourceGeneratorTest {
                 assertTrue(pi.getMethodBody().contains("notPublicAssignment(_privateStaticClassTestTestClass, \"id\", 1);"));
                 assertTrue(pi.getMethodBody().contains("notPublicAssignment(_privateStaticClassTestTestClass, \"name\", \"ggg\");"));
             } else if(pi.getMethodName().startsWith("getArray")) {
-                assertTrue(pi.getMethodBody().contains("" +
+                boolean contains =
+                    pi.getMethodBody().contains("" +
                         "java.lang.Object[] array = " +
                         "(java.lang.Object[]) java.lang.reflect.Array.newInstance(" +
-                        "Class.forName(\"org.object2source.test.NotPublic\"), 10);"));
+                        "Class.forName(\"org.object2source.test.NotPublic\"), 10);")
+                    ||
+                    pi.getMethodBody().contains("" +
+                            "java.lang.Object[] array = " +
+                            "(java.lang.Object[]) java.lang.reflect.Array.newInstance(" +
+                            "Class.forName(\"org.object2source.test.PrivateStaticClassTest$PrivateClassNoParents\"), 5);");
+                assertTrue(contains);
             } else if(pi.getMethodName().startsWith("getPrivateStaticClassTestPrivateConstructor")) {
                 assertTrue(pi.getMethodBody().contains("" +
                         "org.object2source.test.PrivateStaticClassTest.PrivateConstructor _privateStaticClassTestPrivateConstructor = " +
@@ -185,8 +187,9 @@ public class SourceGeneratorTest {
         }
     }
 
-    @Test
-    public void cyclicReferenceTest() {
+
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void cyclicReferenceExceptionTest() {
         Cyclic1 c1 = new Cyclic1();
         Cyclic2 c2 = new Cyclic2();
         c2.setField(c1);
@@ -195,8 +198,17 @@ public class SourceGeneratorTest {
         c1.setName("ggg");
 
         SourceGenerator sg1 = new SourceGenerator();
-        ProviderResult pr1 = sg1.createDataProviderMethod(c1);
-        assertEquals(pr1, null);
+        sg1.createDataProviderMethod(c1);
+    }
+
+    @Test
+    public void cyclicReferenceSuccessTest() {
+        Cyclic1 c1 = new Cyclic1();
+        Cyclic2 c2 = new Cyclic2();
+        c2.setField(c1);
+        c2.setId(123);
+        c1.setField(c2);
+        c1.setName("ggg");
 
         SourceGenerator sg2 = new SourceGenerator();
         sg2.setExceptionWhenMaxODepth(false);

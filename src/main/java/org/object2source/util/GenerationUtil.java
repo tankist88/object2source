@@ -132,7 +132,7 @@ public class GenerationUtil {
         }
         List<Class> interfaces = getInterfacesHierarchy(clazz);
         if(interfaces.size() > 0) return getInterfacesHierarchy(clazz).get(0);
-        else return clazz;
+        else return Object.class;
     }
 
     public static String createInstStr(Class clazz, String commonMethodsClassName) {
