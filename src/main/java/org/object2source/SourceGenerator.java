@@ -18,10 +18,7 @@ import org.object2source.extension.maps.UnmodSortedMapExtension;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.reflect.Modifier.*;
 import static org.object2source.util.AssigmentUtil.*;
@@ -37,7 +34,7 @@ public class SourceGenerator implements TypeGenerator {
     private String tabSymb;
     private boolean exceptionWhenMaxODepth;
 
-    private List<Extension> extensions;
+    private ArrayList<Extension> extensions;
     private Set<String> extensionClasses;
 
     public SourceGenerator() {
@@ -66,17 +63,17 @@ public class SourceGenerator implements TypeGenerator {
     }
 
     private void initEmbeddedExtensions() {
-        registerExtension(new ArraysExtension());
-        registerExtension(new ArraysArrayListExtension());
-        registerExtension(new EmptyListExtension());
-        registerExtension(new EmptySetExtension());
-        registerExtension(new UnmodCollectionExtension());
-        registerExtension(new SingletonListExtension());
-        registerExtension(new BaseCollectionsExtension());
-        registerExtension(new EmptyMapExtension());
-        registerExtension(new UnmodSortedMapExtension());
-        registerExtension(new UnmodMapExtension());
         registerExtension(new BaseMapsExtension());
+        registerExtension(new UnmodMapExtension());
+        registerExtension(new UnmodSortedMapExtension());
+        registerExtension(new EmptyMapExtension());
+        registerExtension(new BaseCollectionsExtension());
+        registerExtension(new SingletonListExtension());
+        registerExtension(new UnmodCollectionExtension());
+        registerExtension(new EmptySetExtension());
+        registerExtension(new EmptyListExtension());
+        registerExtension(new ArraysArrayListExtension());
+        registerExtension(new ArraysExtension());
     }
 
     private void initClassPathExtensions() {
@@ -189,9 +186,9 @@ public class SourceGenerator implements TypeGenerator {
                             .replaceAll("\t", "\\\\t")
                     + "'");
         } else if (clazz.equals(short.class) || clazz.equals(Short.class)) {
-            result = new InstanceCreateData(Short.valueOf(obj.toString()).toString());
+            result = new InstanceCreateData("(short) " + Short.valueOf(obj.toString()).toString());
         } else if (clazz.equals(byte.class) || clazz.equals(Byte.class)) {
-            result = new InstanceCreateData(Byte.valueOf(obj.toString()).toString());
+            result = new InstanceCreateData("(byte) " + Byte.valueOf(obj.toString()).toString());
         } else if (clazz.equals(String.class)) {
             String escapedVal = obj.toString()
                     .replaceAll(ESCAPE_STRING_REGEX, ESCAPE_STRING_REPLACE)
@@ -231,6 +228,9 @@ public class SourceGenerator implements TypeGenerator {
                     commonMethodsClassName
             );
             result = new InstanceCreateData(methodCall);
+        } else if (getClassHierarchyStr(clazz).contains(java.util.TimeZone.class.getName())) {
+            java.util.TimeZone val = (java.util.TimeZone) obj;
+            result = new InstanceCreateData("(" + clazz.getName() + ") java.util.TimeZone.getTimeZone(\"" + val.getID() + "\")");
         } else if (clazz.isEnum()) {
             Enum val = (Enum) obj;
             String enumType = clazz.getName().replaceAll("\\$", ".");
@@ -320,7 +320,7 @@ public class SourceGenerator implements TypeGenerator {
             ((EmbeddedExtension) extension).setSourceGenerator(this);
         }
         if (!extensionClasses.contains(extension.getClass().getName())) {
-            extensions.add(extension);
+            extensions.add(0, extension);
             extensionClasses.add(extension.getClass().getName());
         }
     }

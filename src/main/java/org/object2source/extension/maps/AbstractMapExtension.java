@@ -10,12 +10,12 @@ import java.util.Set;
 import static org.object2source.util.GenerationUtil.createInstStr;
 import static org.object2source.util.GenerationUtil.getInstName;
 
-abstract class AbstractMapExtension extends AbstractEmbeddedExtension {
-    void createAbstractMapInstance(Object obj, StringBuilder sb, Set<ProviderInfo> providers, int objectDepth) throws Exception {
+public abstract class AbstractMapExtension extends AbstractEmbeddedExtension {
+    public void createAbstractMapInstance(Object obj, StringBuilder sb, Set<ProviderInfo> providers, int objectDepth) throws Exception {
         createAbstractMapInstance(obj, sb, providers, obj.getClass(), objectDepth);
     }
 
-    void createAbstractMapInstance(Object obj, StringBuilder sb, Set<ProviderInfo> providers, Class collectionClass, int objectDepth) throws Exception {
+    public void createAbstractMapInstance(Object obj, StringBuilder sb, Set<ProviderInfo> providers, Class collectionClass, int objectDepth) throws Exception {
         sb.append(getTabSymb())
           .append(getTabSymb())
           .append(createInstStr(collectionClass, sourceGenerator.getCommonMethodsClassName()))

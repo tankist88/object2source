@@ -223,4 +223,25 @@ public class SourceGeneratorTest {
         ProviderResult pr = sg.createDataProviderMethod(tObj);
         assertTrue(pr.getEndPoint().getMethodBody().contains("notPublicAssignment(_testObj, \"finalTest\", \"ggg\");"));
     }
+
+    @Test
+    public void timeZoneTest() {
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createDataProviderMethod(TimeZone.getTimeZone(TimeZone.getAvailableIDs()[0]));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("return (sun.util.calendar.ZoneInfo) java.util.TimeZone.getTimeZone(\"Africa/Abidjan\");"));
+    }
+
+    @Test
+    public void byteTest() {
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createDataProviderMethod((byte) 1);
+        assertTrue(pr.getEndPoint().getMethodBody().contains("return (byte) 1;"));
+    }
+
+    @Test
+    public void shortTest() {
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createDataProviderMethod((short) 1);
+        assertTrue(pr.getEndPoint().getMethodBody().contains("return (short) 1;"));
+    }
 }
