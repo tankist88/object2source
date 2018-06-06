@@ -40,24 +40,26 @@ public class AssigmentUtil {
         }
     }
 
+    public static boolean hasZeroArgConstructor(Class clazz, boolean onlyPublic) {
+        if(clazz.getDeclaredConstructors().length > 0) {
+            for (Constructor c : clazz.getDeclaredConstructors()) {
+                if (c.getParameterTypes().length == 0) {
+                    return onlyPublic ? isPublic(c.getModifiers()) : true;
+                }
+            }
+        } else {
+            return true;
+        }
+        return false;
+    }
+
     public static String getConstructorCall(Class instType, String commonClassName) {
         return getConstructorCall(instType, instType, commonClassName);
     }
 
     public static String getConstructorCall(Class instType, Class retType, String commonClassName) {
-        boolean noParamConstructorFound = false;
-        boolean publicConstructorFound = false;
-        if(instType.getDeclaredConstructors().length > 0) {
-            for (Constructor c : instType.getDeclaredConstructors()) {
-                if (c.getParameterTypes().length == 0) {
-                    noParamConstructorFound = true;
-                    publicConstructorFound = isPublic(c.getModifiers());
-                    break;
-                }
-            }
-        } else {
-            noParamConstructorFound = true;
-        }
+        boolean noParamConstructorFound = hasZeroArgConstructor(instType, false);
+        boolean publicConstructorFound = hasZeroArgConstructor(instType, true);
 
         String classAppend = commonClassName != null ? commonClassName + "." : "";
         String retTypeName = getClearedClassName(retType.getName());
