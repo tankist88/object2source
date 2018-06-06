@@ -21,34 +21,24 @@ public class AssigmentUtil {
     public static String getCalendarInstanceMethod(String timeZoneId, String mTime, String className) {
         String classAppend = className != null ? className + "." : "";
         return classAppend + "getCalendarInstance(<tzId>, <mTime>)"
-                .replaceAll("<tzId>", timeZoneId)
-                .replaceAll("<mTime>", mTime);
+                .replace("<tzId>", timeZoneId)
+                .replace("<mTime>", mTime);
     }
 
     public static String getFieldNotPublicAssignment(Object obj, String fieldName, String value, String className) {
         String classAppend = className != null ? className + "." : "";
-        try {
-            return classAppend + "notPublicAssignment(<obj>, <fName>, <value>)"
-                    .replaceAll("<obj>", GenerationUtil.getInstName(obj.getClass()))
-                    .replaceAll("<fName>", "\"" + fieldName + "\"")
-                    .replaceAll("<value>", value.replaceAll(ESCAPE_STRING_REGEX, ESCAPE_STRING_REPLACE));
-        } catch (Exception ex) {
-            return classAppend + "notPublicAssignment(<obj>, <fName>, <value>)"
-                    .replaceAll("<obj>", GenerationUtil.getInstName(obj.getClass()))
-                    .replaceAll("<fName>", "\"" + fieldName + "\"")
-                    .replaceAll("<value>", "null");
-        }
+        return classAppend + "notPublicAssignment(<obj>, <fName>, <value>)"
+                .replace("<obj>", GenerationUtil.getInstName(obj.getClass()))
+                .replace("<fName>", "\"" + fieldName + "\"")
+                .replace("<value>", value);
     }
 
     public static boolean hasZeroArgConstructor(Class clazz, boolean onlyPublic) {
-        if(clazz.getDeclaredConstructors().length > 0) {
-            for (Constructor c : clazz.getDeclaredConstructors()) {
-                if (c.getParameterTypes().length == 0) {
-                    return onlyPublic ? isPublic(c.getModifiers()) : true;
-                }
+        if(clazz.getDeclaredConstructors().length == 0) return true;
+        for (Constructor c : clazz.getDeclaredConstructors()) {
+            if (c.getParameterTypes().length == 0) {
+                return !onlyPublic || isPublic(c.getModifiers());
             }
-        } else {
-            return true;
         }
         return false;
     }

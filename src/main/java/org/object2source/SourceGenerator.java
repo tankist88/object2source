@@ -136,13 +136,20 @@ public class SourceGenerator implements TypeGenerator {
             instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
             List<Method> allMethods = getAllMethodsOfClass(classHierarchy);
             for (Field field : getAllFieldsOfClass(classHierarchy)) {
-                boolean deniedModifier = isStatic(field.getModifiers()) || isNative(field.getModifiers());
-                if (deniedModifier || exclusionType(field.getType()) || (!field.getType().isPrimitive() && getFieldValue(field, obj) == null)) continue;
-                InstanceCreateData instData = getInstanceCreateData(getFieldValue(field, obj), false, objectDepth);
+                int fieldModifiers = field.getModifiers();
+                boolean deniedModifier = isStatic(fieldModifiers) || isNative(fieldModifiers);
+                Object fieldValue = null;
+                if (    deniedModifier || exclusionType(field.getType()) ||
+                        (!field.getType().isPrimitive() && (fieldValue = getFieldValue(field, obj)) == null))
+                {
+                    continue;
+                }
+                if (fieldValue == null) fieldValue = getFieldValue(field, obj);
+                InstanceCreateData instData = getInstanceCreateData(fieldValue, false, objectDepth);
                 if (instData == null) continue;
                 String fieldName = field.getName();
                 if (!isPublic(clazz.getModifiers()) || setterNotExists(fieldName, field, allMethods)) {
-                    if (isPublic(field.getModifiers()) && !isFinal(field.getModifiers())) {
+                    if (isPublic(fieldModifiers) && !isFinal(fieldModifiers)) {
                         instBuilder.append(getFieldAssignment(tabSymb, obj, fieldName, instData.getInstanceCreator()));
                     } else {
                         instBuilder .append(tabSymb).append(tabSymb)
@@ -233,7 +240,7 @@ public class SourceGenerator implements TypeGenerator {
             result = new InstanceCreateData("(" + clazz.getName() + ") java.util.TimeZone.getTimeZone(\"" + val.getID() + "\")");
         } else if (clazz.isEnum()) {
             Enum val = (Enum) obj;
-            String enumType = clazz.getName().replaceAll("\\$", ".");
+            String enumType = getClearedClassName(clazz.getName());
             result = new InstanceCreateData(enumType + "." + val.name());
         } else if (!onlySimple && !exclusionType(clazz)) {
             String fieldName = clazz.isArray() ? "array" : getInstName(clazz.getName(), false);
@@ -282,7 +289,7 @@ public class SourceGenerator implements TypeGenerator {
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
 
-        String method = tabSymb + "public static " + typeName.replaceAll("\\$", ".") + " " +
+        String method = tabSymb + "public static " + getClearedClassName(typeName) + " " +
                         providerMethodName + " throws Exception {\n" + methodBody + tabSymb + "}\n";
 
         ProviderResult result = new ProviderResult();
