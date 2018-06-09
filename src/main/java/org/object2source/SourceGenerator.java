@@ -1,8 +1,5 @@
 package org.object2source;
 
-import org.clapper.util.classutil.ClassFinder;
-import org.clapper.util.classutil.ClassInfo;
-import org.clapper.util.classutil.SubclassClassFilter;
 import org.object2source.dto.InstanceCreateData;
 import org.object2source.dto.ProviderInfo;
 import org.object2source.dto.ProviderResult;
@@ -18,7 +15,10 @@ import org.object2source.extension.maps.UnmodSortedMapExtension;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static java.lang.reflect.Modifier.*;
 import static org.object2source.util.AssigmentUtil.*;
@@ -59,7 +59,6 @@ public class SourceGenerator implements TypeGenerator {
         this.extensions =  new ArrayList<>();
         this.extensionClasses = new HashSet<>();
         initEmbeddedExtensions();
-        initClassPathExtensions();
     }
 
     private void initEmbeddedExtensions() {
@@ -74,23 +73,6 @@ public class SourceGenerator implements TypeGenerator {
         registerExtension(new EmptyListExtension());
         registerExtension(new ArraysArrayListExtension());
         registerExtension(new ArraysExtension());
-    }
-
-    private void initClassPathExtensions() {
-        Set<ClassInfo> classes = new HashSet<>();
-        ClassFinder cf = new ClassFinder();
-        cf.addClassPath();
-        cf.findClasses(classes, new SubclassClassFilter(Extension.class));
-        for (ClassInfo ci : classes) {
-            if (isAbstract(ci.getModifier()) || isInterface(ci.getModifier())) continue;
-            try {
-                Extension ext = (Extension) Class.forName(ci.getClassName()).newInstance();
-                registerExtension(ext);
-            } catch (ReflectiveOperationException roe) {
-                System.err.println("Cant't register extension " + ci.getClassName() + ". " + roe.getMessage());
-                roe.printStackTrace();
-            }
-        }
     }
 
     public boolean isExceptionWhenMaxODepth() {

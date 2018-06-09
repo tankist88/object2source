@@ -1,5 +1,7 @@
 package org.object2source.util;
 
+import org.apache.commons.lang3.ClassUtils;
+
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -30,17 +32,12 @@ public class GenerationUtil {
     }
 
     public static List<Class> getClassHierarchy(Class clazz){
-        List<Class> classesWithParent = new ArrayList<>();
-        if(!clazz.isInterface() && !clazz.isPrimitive() && !clazz.isArray() && !clazz.isAnnotation() && !clazz.isEnum()) {
-            Class currentClass = clazz;
-            while (!currentClass.equals(Object.class)) {
-                classesWithParent.add(currentClass);
-                currentClass = currentClass.getSuperclass();
-            }
-        } else {
-            classesWithParent.add(clazz);
+        List<Class> classes = new ArrayList<>();
+        for (Class c : ClassUtils.hierarchy(clazz)) {
+            if(c.equals(Object.class)) continue;
+            classes.add(c);
         }
-        return classesWithParent;
+        return classes;
     }
 
     public static List<String> getInterfacesHierarchyStr(Class clazz){
@@ -53,15 +50,10 @@ public class GenerationUtil {
 
     public static List<Class> getInterfacesHierarchy(Class<?> clazz) {
         List<Class> interfaces = new ArrayList<>();
-        if(!clazz.isInterface() && !clazz.isPrimitive() && !clazz.isArray() && !clazz.isAnnotation() && !clazz.isEnum()) {
-            Class currentClass = clazz;
-            while (!currentClass.equals(Object.class)) {
-                interfaces.addAll(Arrays.asList(currentClass.getInterfaces()));
-                currentClass = currentClass.getSuperclass();
+        for (Class i : ClassUtils.hierarchy(clazz, ClassUtils.Interfaces.INCLUDE)) {
+            if(i.isInterface()) {
+                interfaces.add(i);
             }
-        } else if(clazz.isInterface()) {
-            interfaces.add(clazz);
-            interfaces.addAll(Arrays.asList(clazz.getInterfaces()));
         }
         return interfaces;
     }

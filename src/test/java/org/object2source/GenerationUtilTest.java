@@ -1,10 +1,13 @@
 package org.object2source;
 
+import org.object2source.extension.collections.UnmodCollectionExtension;
+import org.object2source.test.IntHierarchyTest;
 import org.object2source.util.GenerationUtil;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -95,8 +98,7 @@ public class GenerationUtilTest {
 
     @Test
     public void getParameterizedTypesTest() {
-        List<Integer> intList = new ArrayList<>();
-        List<Class> types = GenerationUtil.getParameterizedTypes(intList.getClass());
+        List<Class> types = GenerationUtil.getParameterizedTypes((new ArrayList<Integer>()).getClass());
         for(Class c : types) {
             System.out.println(c.getName());
         }
@@ -110,5 +112,36 @@ public class GenerationUtilTest {
         assertEquals(actual2, "org.home.MyClass");
         String actual3 = GenerationUtil.getOwnerParentClass("org.home.MyClass$1");
         assertEquals(actual3, "org.home.MyClass");
+    }
+
+    @Test
+    public void getClassHierarchyTest() {
+        List<String> hierarchy = GenerationUtil.getClassHierarchyStr(UnmodCollectionExtension.class);
+        List<String> controlValues = Arrays.asList(
+                "org.object2source.extension.collections.UnmodCollectionExtension",
+                "org.object2source.extension.collections.AbstractCollectionExtension",
+                "org.object2source.extension.AbstractEmbeddedExtension"
+        );
+        assertEquals(hierarchy.size(), controlValues.size(),
+                "Returned class hierarchy size not equal expected size.");
+        for (String s : controlValues) {
+            assertTrue(hierarchy.contains(s), "Class " + s + " not found.");
+        }
+    }
+
+    @Test
+    public void getInterfacesHierarchyTest() {
+        List<String> hierarchy = GenerationUtil.getInterfacesHierarchyStr(IntHierarchyTest.class);
+        List<String> controlValues = Arrays.asList(
+                "org.object2source.test.Int1",
+                "org.object2source.test.Int2",
+                "org.object2source.test.Int3"
+        );
+        assertEquals(hierarchy.size(), controlValues.size(),
+                "Returned interface hierarchy size not equal expected size.");
+        for (String s : controlValues) {
+            System.out.println(s);
+            assertTrue(hierarchy.contains(s), "Interface " + s + " not found.");
+        }
     }
 }
