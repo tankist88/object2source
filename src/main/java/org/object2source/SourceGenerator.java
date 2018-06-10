@@ -13,6 +13,7 @@ import org.object2source.extension.maps.EmptyMapExtension;
 import org.object2source.extension.maps.UnmodMapExtension;
 import org.object2source.extension.maps.UnmodSortedMapExtension;
 
+import javax.annotation.Generated;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -271,7 +272,9 @@ public class SourceGenerator implements TypeGenerator {
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
 
-        String method = tabSymb + "public static " + getClearedClassName(typeName) + " " +
+
+        String method = tabSymb + "@Generated(value = \"" + SourceGenerator.class.getName() + "\")\n" +
+                        tabSymb + "public static " + getClearedClassName(typeName) + " " +
                         providerMethodName + " throws Exception {\n" + methodBody + tabSymb + "}\n";
 
         ProviderResult result = new ProviderResult();
