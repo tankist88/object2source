@@ -210,7 +210,7 @@ public class GenerationUtil {
         }
     }
 
-    private static Class convertPrimitiveToWrapper(Class clazz) {
+    public static Class convertPrimitiveToWrapper(Class clazz) {
         if (clazz.equals(boolean.class) || clazz.equals(Boolean.class)) {
             return Boolean.class;
         } else if (clazz.equals(int.class) || clazz.equals(Integer.class)) {
@@ -229,6 +229,28 @@ public class GenerationUtil {
             return Byte.class;
         } else {
             return clazz;
+        }
+    }
+
+    public static String convertPrimitiveToWrapper(String classname) {
+        if (boolean.class.getName().equals(classname)) {
+            return Boolean.class.getName();
+        } else if (int.class.getName().equals(classname)) {
+            return Integer.class.getName();
+        } else if (long.class.getName().equals(classname)) {
+            return Long.class.getName();
+        } else if (double.class.getName().equals(classname)) {
+            return Double.class.getName();
+        } else if (float.class.getName().equals(classname)) {
+            return Float.class.getName();
+        } else if (char.class.getName().equals(classname)) {
+            return Character.class.getName();
+        } else if (short.class.getName().equals(classname)) {
+            return Short.class.getName();
+        } else if (byte.class.getName().equals(classname)) {
+            return Byte.class.getName();
+        } else {
+            return classname;
         }
     }
 

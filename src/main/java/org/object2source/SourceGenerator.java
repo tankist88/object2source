@@ -13,7 +13,6 @@ import org.object2source.extension.maps.EmptyMapExtension;
 import org.object2source.extension.maps.UnmodMapExtension;
 import org.object2source.extension.maps.UnmodSortedMapExtension;
 
-import javax.annotation.Generated;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -319,7 +318,6 @@ public class SourceGenerator implements TypeGenerator {
 
     @Override
     public Extension findExtension(Class clazz) {
-        // Search in registered extensions
         for (Extension ext : extensions) {
             if (ext.isTypeSupported(clazz)) return ext;
         }
