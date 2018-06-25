@@ -127,3 +127,13 @@ callConstructorReflection(<type>)
 <tab><tab>}
 <tab>}
 -----------------
+createInstance(<type>)
+-----------------
+<tab>public static <T> T createInstance(Class<T> clazz) {
+<tab><tab>try {
+<tab><tab><tab>return (T) newInstanceHard(Class.forName(clazz.getName()));
+<tab><tab>} catch (ClassNotFoundException cnf) {
+<tab><tab><tab>throw new IllegalStateException(cnf);
+<tab><tab>}
+<tab>}
+-----------------
