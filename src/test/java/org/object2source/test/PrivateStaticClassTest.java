@@ -58,6 +58,10 @@ public class PrivateStaticClassTest {
         public void setExamplePackagePrivateList(ExamplePackagePrivateList examplePackagePrivateList) {
             this.examplePackagePrivateList = examplePackagePrivateList;
         }
+
+        public PrivateConstructor getPc() {
+            return pc;
+        }
     }
 
     public static class PrivateConstructor {
@@ -77,6 +81,10 @@ public class PrivateStaticClassTest {
 
         public void setId(int id) {
             this.id = id;
+        }
+
+        public PrivateClassNoParents[] getPcnp() {
+            return pcnp;
         }
     }
 

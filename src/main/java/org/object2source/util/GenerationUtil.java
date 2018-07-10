@@ -83,11 +83,11 @@ public class GenerationUtil {
         return replaceEach(fullClassName, new String[] {"$", ";"}, new String[] {".", ""});
     }
 
-    private static String getFirstClassName(String fullClassName) {
+    static String getFirstClassName(String fullClassName) {
         String[] arr = getClearedClassName(fullClassName).split("\\.");
         String className = arr[arr.length - 1];
         for (String part : arr) {
-            if(Character.isUpperCase(part.charAt(0))) {
+            if (part.length() > 0 && Character.isUpperCase(part.charAt(0))) {
                 className = part;
                 break;
             }

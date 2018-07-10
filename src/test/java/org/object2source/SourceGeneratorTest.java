@@ -1,5 +1,6 @@
 package org.object2source;
 
+import com.sun.security.sasl.Provider;
 import org.object2source.dto.InstanceCreateData;
 import org.object2source.dto.ProviderInfo;
 import org.object2source.dto.ProviderResult;
@@ -8,6 +9,7 @@ import org.object2source.test.Cyclic2;
 import org.object2source.test.PrivateStaticClassTest;
 import org.testng.annotations.Test;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -243,5 +245,68 @@ public class SourceGeneratorTest {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod((short) 1);
         assertTrue(pr.getEndPoint().getMethodBody().contains("return (short) 1;"));
+    }
+
+    @Test
+    public void matrixIntArrayTest() {
+        int[][][] array = new int[4][3][2];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 2; k++) {
+                    array[i][j][k] = 1;
+                }
+            }
+        }
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createDataProviderMethod(array);
+
+        assertTrue(pr.getEndPoint().getMethodBody().contains("int[][][] array = new int[4][3][2];"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[0] = getArray_868009510();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[1] = getArray_868009510();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[2] = getArray_868009510();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[3] = getArray_868009510();"));
+    }
+
+    @Test
+    public void matrixBigDecimalArrayTest() {
+        BigDecimal[][][] array = new BigDecimal[4][3][2];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 2; k++) {
+                    array[i][j][k] = new BigDecimal(1);
+                }
+            }
+        }
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createDataProviderMethod(array);
+
+        assertTrue(pr.getEndPoint().getMethodBody().contains("java.math.BigDecimal[][][] array = new java.math.BigDecimal[4][3][2];"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[0] = getArray__1748287722();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[1] = getArray__1748287722();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[2] = getArray__1748287722();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[3] = getArray__1748287722();"));
+    }
+
+    @Test
+    public void matrixNotPublicArrayTest() {
+        PrivateClassForArray[][][] array = new PrivateClassForArray[4][3][2];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 2; k++) {
+                    array[i][j][k] = new PrivateClassForArray();
+                }
+            }
+        }
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createDataProviderMethod(array);
+        assertTrue(pr.getEndPoint().getMethodBody().contains("java.lang.Object[][][] array = (java.lang.Object[][][]) " +
+                "java.lang.reflect.Array.newInstance(" +
+                "Class.forName(\"org.object2source.SourceGeneratorTest$PrivateClassForArray\"), 4, 3, 2);"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[0] = getArray_2135725158();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[1] = getArray_2135725158();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[2] = getArray_2135725158();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[3] = getArray_2135725158();"));
+    }
+    private static class PrivateClassForArray {
     }
 }
