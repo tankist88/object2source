@@ -1,6 +1,5 @@
 package org.object2source;
 
-import com.sun.security.sasl.Provider;
 import org.object2source.dto.InstanceCreateData;
 import org.object2source.dto.ProviderInfo;
 import org.object2source.dto.ProviderResult;
@@ -9,7 +8,6 @@ import org.object2source.test.Cyclic2;
 import org.object2source.test.PrivateStaticClassTest;
 import org.testng.annotations.Test;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -107,18 +105,18 @@ public class SourceGeneratorTest {
     @Test
     public void testSetExceptionWhenMaxODepth() {
         SourceGenerator sg = new SourceGenerator();
-        assertEquals(sg.isExceptionWhenMaxODepth(), true);
+        assertTrue(sg.isExceptionWhenMaxODepth());
         sg.setExceptionWhenMaxODepth(false);
-        assertEquals(sg.isExceptionWhenMaxODepth(), false);
+        assertFalse(sg.isExceptionWhenMaxODepth());
     }
 
     @Test
     public void testGetPackageExclusions() {
         SourceGenerator sg;
         sg = new SourceGenerator();
-        assertEquals(sg.getPackageExclusions().size(), 0);
+        assertEquals(sg.getAllowedPackages().size(), 0);
         sg = new SourceGenerator("    ", new HashSet<>(Arrays.asList("a.b","c.d")));
-        assertEquals(sg.getPackageExclusions().size(), 2);
+        assertEquals(sg.getAllowedPackages().size(), 2);
     }
 
     @Test
