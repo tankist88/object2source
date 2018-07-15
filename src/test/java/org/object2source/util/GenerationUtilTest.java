@@ -106,11 +106,13 @@ public class GenerationUtilTest {
     @Test
     public void getOwnerParentClassTest() {
         String actual1 = GenerationUtil.getOwnerParentClass("org.home.MyClass$InnerClass$1");
-        assertEquals(actual1, "org.home.MyClass$InnerClass");
+        assertEquals(actual1, "org.home.MyClass");
         String actual2 = GenerationUtil.getOwnerParentClass("org.home.MyClass$InnerClass");
         assertEquals(actual2, "org.home.MyClass");
         String actual3 = GenerationUtil.getOwnerParentClass("org.home.MyClass$1");
         assertEquals(actual3, "org.home.MyClass");
+        String actual4 = GenerationUtil.getOwnerParentClass("org.home.MyClass");
+        assertEquals(actual4, "org.home.MyClass");
     }
 
     @Test

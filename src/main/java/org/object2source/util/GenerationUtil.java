@@ -101,9 +101,12 @@ public class GenerationUtil {
     }
 
     public static String getOwnerParentClass(String fullClassName) {
-        if(!fullClassName.contains("$")) return fullClassName;
-        String lastClassName = getLastClassShort(fullClassName);
-        return fullClassName.substring(0, fullClassName.indexOf(lastClassName) - 1);
+        String parentClassName = fullClassName;
+        while (parentClassName.contains("$")) {
+            String lastClassName = getLastClassShort(parentClassName);
+            parentClassName = parentClassName.substring(0, parentClassName.indexOf(lastClassName) - 1);
+        }
+        return parentClassName;
     }
 
     public static String getClassShort(String fullClassName) {
