@@ -106,11 +106,31 @@ public class GenerationUtilTest {
     @Test
     public void getOwnerParentClassTest() {
         String actual1 = GenerationUtil.getOwnerParentClass("org.home.MyClass$InnerClass$1");
-        assertEquals(actual1, "org.home.MyClass$InnerClass");
+        assertEquals(actual1, "org.home.MyClass");
         String actual2 = GenerationUtil.getOwnerParentClass("org.home.MyClass$InnerClass");
         assertEquals(actual2, "org.home.MyClass");
         String actual3 = GenerationUtil.getOwnerParentClass("org.home.MyClass$1");
         assertEquals(actual3, "org.home.MyClass");
+        String actual4 = GenerationUtil.getOwnerParentClass("org.home.MyClass");
+        assertEquals(actual4, "org.home.MyClass");
+    }
+
+    @Test
+    public void getAnonymousCallerClassTest() {
+        String actual1 = GenerationUtil.getAnonymousCallerClass("org.home.MyClass$InnerClass$1$2");
+        assertEquals(actual1, "org.home.MyClass$InnerClass");
+        String actual2 = GenerationUtil.getAnonymousCallerClass("org.home.MyClass$InnerClass$1");
+        assertEquals(actual2, "org.home.MyClass$InnerClass");
+        String actual3 = GenerationUtil.getAnonymousCallerClass("org.home.MyClass$1");
+        assertEquals(actual3, "org.home.MyClass");
+        String actual4 = GenerationUtil.getAnonymousCallerClass("org.home.MyClass");
+        assertEquals(actual4, "org.home.MyClass");
+    }
+
+    @Test
+    public void isAnonymousClassTest() {
+        assertTrue(GenerationUtil.isAnonymousClass("org.home.MyClass$1"));
+        assertFalse(GenerationUtil.isAnonymousClass("org.home.MyClass"));
     }
 
     @Test

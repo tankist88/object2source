@@ -27,7 +27,7 @@ import static org.object2source.util.GenerationUtil.*;
 public class SourceGenerator implements TypeGenerator {
     static final int DEFAULT_MAX_DEPTH = 10;
 
-    private Set<String> packageExclusions;
+    private Set<String> allowedPackages;
     private int maxObjectDepth;
     private String commonMethodsClassName;
     private Set<ProviderInfo> commonMethods;
@@ -43,15 +43,15 @@ public class SourceGenerator implements TypeGenerator {
     public SourceGenerator(String tabSymb) {
         this(tabSymb, new HashSet<String>());
     }
-    public SourceGenerator(String tabSymb, Set<String> packageExclusions) {
-        this(tabSymb, packageExclusions, null);
+    public SourceGenerator(String tabSymb, Set<String> allowedPackages) {
+        this(tabSymb, allowedPackages, null);
     }
-    public SourceGenerator(String tabSymb, Set<String> packageExclusions, String commonMethodsClassName) {
-        this(tabSymb, packageExclusions, commonMethodsClassName, true);
+    public SourceGenerator(String tabSymb, Set<String> allowedPackages, String commonMethodsClassName) {
+        this(tabSymb, allowedPackages, commonMethodsClassName, true);
     }
-    public SourceGenerator(String tabSymb, Set<String> packageExclusions, String commonMethodsClassName, boolean exceptionWhenMaxODepth) {
+    public SourceGenerator(String tabSymb, Set<String> allowedPackages, String commonMethodsClassName, boolean exceptionWhenMaxODepth) {
         this.tabSymb = tabSymb;
-        this.packageExclusions = packageExclusions;
+        this.allowedPackages = allowedPackages;
         this.maxObjectDepth = DEFAULT_MAX_DEPTH;
         this.exceptionWhenMaxODepth = exceptionWhenMaxODepth;
         this.commonMethodsClassName = commonMethodsClassName;
@@ -102,7 +102,7 @@ public class SourceGenerator implements TypeGenerator {
     private InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
         if (objectDepth <= 0 && exceptionWhenMaxODepth) {
             throw new ObjectDepthExceededException("Object depth exceeded. " + obj.getClass());
-        } else if (objectDepth <= 0 || obj == null || exclusionType(obj.getClass())) {
+        } else if (objectDepth <= 0 || obj == null || !allowedType(obj.getClass())) {
             return new InstanceCreateData(tabSymb + "return null;\n");
         }
 
@@ -121,7 +121,7 @@ public class SourceGenerator implements TypeGenerator {
                 int fieldModifiers = field.getModifiers();
                 boolean deniedModifier = isStatic(fieldModifiers) || isNative(fieldModifiers);
                 Object fieldValue = null;
-                if (    deniedModifier || exclusionType(field.getType()) ||
+                if (    deniedModifier || !allowedType(field.getType()) ||
                         (!field.getType().isPrimitive() && (fieldValue = getFieldValue(field, obj)) == null))
                 {
                     continue;
@@ -224,7 +224,7 @@ public class SourceGenerator implements TypeGenerator {
             Enum val = (Enum) obj;
             String enumType = getClearedClassName(clazz.getName());
             result = new InstanceCreateData(enumType + "." + val.name());
-        } else if (!onlySimple && !exclusionType(clazz)) {
+        } else if (!onlySimple && allowedType(clazz)) {
             String fieldName = clazz.isArray() ? "array" : getInstName(clazz.getName(), false);
             ProviderResult providerResult = createDataProviderMethod(obj, fieldName, objectDepth);
             result = new InstanceCreateData(providerResult.getEndPoint().getMethodName());
@@ -237,7 +237,7 @@ public class SourceGenerator implements TypeGenerator {
 
     @Override
     public ProviderResult createDataProviderMethod(Object obj) {
-        if (obj == null || exclusionType(obj.getClass())) return null;
+        if (obj == null || !allowedType(obj.getClass())) return null;
         boolean anonymousClass = getLastClassShort(obj.getClass().getName()).matches("\\d+");
         if(anonymousClass) return null;
         Class<?> clazz = obj.getClass();
@@ -286,13 +286,14 @@ public class SourceGenerator implements TypeGenerator {
         return result;
     }
 
-    public Set<String> getPackageExclusions() {
-        if (packageExclusions == null) packageExclusions = new HashSet<>();
-        return packageExclusions;
+    public Set<String> getAllowedPackages() {
+        if (allowedPackages == null) allowedPackages = new HashSet<>();
+        return allowedPackages;
     }
 
-    private boolean exclusionType(Class<?> clazz) {
-        for (String p : packageExclusions) {
+    boolean allowedType(Class<?> clazz) {
+        if(allowedPackages == null || allowedPackages.size() == 0 || clazz.isPrimitive()) return true;
+        for (String p : allowedPackages) {
             if (clazz.getName().startsWith(p)) return true;
         }
         return false;

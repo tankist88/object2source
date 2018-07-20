@@ -36,12 +36,12 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
     }
 
     private Class getCanonicalClass(Object obj) {
+        String canonicalName = obj.getClass().getCanonicalName();
+        String canonicalType = canonicalName.replace("[", "").replace("]", "");
         try {
-            String canonicalName = obj.getClass().getCanonicalName();
-            String canonicalType = canonicalName.replace("[", "").replace("]", "");
-            return ClassUtils.getClass(canonicalType);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException(e);
+            return ClassUtils.getClass(obj.getClass().getClassLoader(), canonicalType);
+        } catch (ClassNotFoundException cnf1) {
+            throw new IllegalStateException(cnf1);
         }
     }
 
