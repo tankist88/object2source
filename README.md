@@ -19,8 +19,8 @@ for(ProviderInfo pi : pr.getProviders()) {
 Example output:
 
 ```java
-private static org.object2source.TestObj getTestObj_240650537() {
-    org.object2source.TestObj testObj = new org.object2source.TestObj();
+private static TestObj getTestObj_240650537() {
+    TestObj testObj = new TestObj();
     testObj.setNum(0);
     testObj.setCh(' ');
     testObj.setArr(getArray_483422889());
@@ -43,8 +43,8 @@ private static int[] getArray_483422889() {
     return array;
 }
 
-private static org.object2source.TestObj[] getArray_1277181601() {
-    org.object2source.TestObj[] array = new org.object2source.TestObj[10];
+private static TestObj[] getArray_1277181601() {
+    TestObj[] array = new TestObj[10];
     array[0] = null;
     array[1] = null;
     array[2] = null;
