@@ -2,5 +2,3 @@
 target/
 bin/
 *.iml
-pom.xml.releaseBackup
-release.properties
