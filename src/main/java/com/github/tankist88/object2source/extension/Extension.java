@@ -8,7 +8,7 @@ public interface Extension {
     /**
      * Check support source code generation for class with this extension
      * @param clazz - class for which need to check source code generation support
-     * @return <b>true<b/> if code generation supported, <b>false</b> otherwise
+     * @return true if code generation supported, false otherwise
      */
     boolean isTypeSupported(Class<?> clazz);
 
