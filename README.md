@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/tankist88/object2source.svg?branch=master)](https://travis-ci.org/tankist88/object2source)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.tankist88/object2source.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.tankist88%22%20a%3A%22object2source%22)
+[![Codecov](https://img.shields.io/codecov/c/github/tankist88/object2source.svg)](https://codecov.io/gh/tankist88/object2source)
+
 
 A library for generating the source code that creates an instance of the object that is submitted to the input.
 
