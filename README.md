@@ -1,8 +1,13 @@
 # object2source #
 
 [![Build Status](https://travis-ci.org/tankist88/object2source.svg?branch=master)](https://travis-ci.org/tankist88/object2source)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.tankist88/object2source.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.tankist88%22%20a%3A%22object2source%22)
 [![Codecov](https://img.shields.io/codecov/c/github/tankist88/object2source.svg)](https://codecov.io/gh/tankist88/object2source)
+
+
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.tankist88/object2source.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.tankist88%22%20a%3A%22object2source%22)
+![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/https/oss.sonatype.org/com.github.tankist88/object2source.svg)
+![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.github.tankist88/object2source.svg)
+
 
 
 A library for generating the source code that creates an instance of the object that is submitted to the input.
