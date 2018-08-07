@@ -6,9 +6,16 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.tankist88/object2source.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.tankist88%22%20a%3A%22object2source%22)
 
 
-A library for generating the source code that creates an instance of the object that is submitted to the input.
+A library for generating the source code that creates an instance of the object that is submitted to the input. 
+This means that using this library, you can reverse engineer objects from the JVM memory. The object2source can generate data provider methods for a variety of standard Java types. If you want to generate a method to get an instance of an arbitrary custom class, you can use the extension system.
+Now you can use extensions to generate instances of classes from the libraries of Google guava and YodaTime.
 
-Example:
+Links to the repository with extensions:
+
+1. https://github.com/tankist88/guava-extension
+2. https://github.com/tankist88/jodatime-extension
+
+### Example of usage ###
 
 ```java
 TestObj testObj = new TestObj();
@@ -64,6 +71,18 @@ private static TestObj[] getArray_1277181601() {
     return array;
 }
 ```
+
+### Register extensions ###
+
+```java
+SourceGenerator sg = new SourceGenerator();
+Extension ext = (Extension) Class.forName("org.example.MyCustomTypeExtension").newInstance();
+sg.registerExtension(ext);
+```
+
+### Create custom extension ###
+
+To create custom extension you need create class that implements [Extension](https://github.com/tankist88/object2source/blob/master/src/main/java/com/github/tankist88/object2source/extension/Extension.java) interface.
 
 ### Installation ###
 
