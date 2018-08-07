@@ -2,12 +2,8 @@
 
 [![Build Status](https://travis-ci.org/tankist88/object2source.svg?branch=master)](https://travis-ci.org/tankist88/object2source)
 [![Codecov](https://img.shields.io/codecov/c/github/tankist88/object2source.svg)](https://codecov.io/gh/tankist88/object2source)
-
-
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/49996a1d61e1430fa8b51d1fd7a17b66)](https://www.codacy.com/project/tankist88/object2source/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tankist88/object2source&amp;utm_campaign=Badge_Grade_Dashboard)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.tankist88/object2source.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.tankist88%22%20a%3A%22object2source%22)
-![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/https/oss.sonatype.org/com.github.tankist88/object2source.svg)
-![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.github.tankist88/object2source.svg)
-
 
 
 A library for generating the source code that creates an instance of the object that is submitted to the input.
@@ -21,7 +17,7 @@ ProviderResult pr = (new SourceGenerator()).createDataProviderMethod(testObj);
 
 Print result:
 ```java
-for(ProviderInfo pi : pr.getProviders()) {
+for (ProviderInfo pi : pr.getProviders()) {
     System.out.println(pi.getMethodBody());
 }
 ```
