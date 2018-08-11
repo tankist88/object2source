@@ -253,7 +253,7 @@ public class SourceGenerator implements TypeGenerator {
     private ProviderResult createDataProviderMethod(Object obj, String fieldName, int objectDepth) throws Exception {
         Set<ProviderInfo> providers = new HashSet<>();
 
-        objectDepth--;
+        int nextObjectDepth = objectDepth - 1;
 
         StringBuilder bodyBuilder = new StringBuilder();
 
@@ -261,9 +261,9 @@ public class SourceGenerator implements TypeGenerator {
 
         Extension extension = findExtension(clazz);
         if (extension != null) {
-            extension.fillMethodBody(bodyBuilder, providers, objectDepth, obj);
+            extension.fillMethodBody(bodyBuilder, providers, nextObjectDepth, obj);
         } else {
-            fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(clazz), objectDepth);
+            fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(clazz), nextObjectDepth);
         }
 
         Class<?> actClass = !isPublic(clazz.getModifiers()) ? getFirstPublicType(clazz) : clazz;

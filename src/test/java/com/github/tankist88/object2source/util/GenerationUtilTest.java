@@ -27,10 +27,10 @@ public class GenerationUtilTest {
 
     private static class TestUtil {
         @SuppressWarnings("unused")
-        void setList(List<Integer> intList) {
+        private void setList(List<Integer> intList) {
         }
         @SuppressWarnings("unused")
-        <T> List<Integer> returnList(List<T> list) {
+        private <T> List<Integer> returnList(List<T> list) {
             return null;
         }
     }
