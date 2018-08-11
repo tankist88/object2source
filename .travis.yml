@@ -2,5 +2,9 @@ language: java
 jdk:
   - oraclejdk8
 script: "mvn cobertura:cobertura"
+before_install:
+  - sudo apt-get install jq
+  - wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
 after_success:
   - bash <(curl -s https://codecov.io/bash) -t f885545e-2b4d-4cc2-905c-a2aa04db01e1
+  - java -jar ~/codacy-coverage-reporter-assembly-latest.jar report -l Java -r target/site/cobertura/coverage.xml -t c32c10b16df64285800a17b81142b52e

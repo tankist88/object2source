@@ -271,7 +271,6 @@ public class SourceGenerator implements TypeGenerator {
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
 
-
         String method = tabSymb + "public static " + getClearedClassName(typeName) + " " +
                         providerMethodName + " throws Exception {\n" + methodBody + tabSymb + "}\n";
 
