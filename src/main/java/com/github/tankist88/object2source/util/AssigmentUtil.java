@@ -10,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.github.tankist88.object2source.util.GenerationUtil.*;
 import static java.lang.reflect.Modifier.isPublic;
 
 public class AssigmentUtil {
@@ -27,7 +28,7 @@ public class AssigmentUtil {
     public static String getFieldNotPublicAssignment(Object obj, String fieldName, String value, String className) {
         String classAppend = className != null ? className + "." : "";
         return classAppend + "notPublicAssignment(<obj>, <fName>, <value>)"
-                .replace("<obj>", GenerationUtil.getInstName(obj.getClass()))
+                .replace("<obj>", getInstName(obj.getClass()))
                 .replace("<fName>", "\"" + fieldName + "\"")
                 .replace("<value>", value);
     }
@@ -51,8 +52,8 @@ public class AssigmentUtil {
         boolean publicConstructorFound = hasZeroArgConstructor(instType, true);
 
         String classAppend = commonClassName != null ? commonClassName + "." : "";
-        String retTypeName = GenerationUtil.getClearedClassName(retType.getName());
-        String instClearName = GenerationUtil.getClearedClassName(instType.getName());
+        String retTypeName = getClearedClassName(retType.getName());
+        String instClearName = getClearedClassName(instType.getName());
 
         String result;
         if (noParamConstructorFound && publicConstructorFound && isPublic(instType.getModifiers())) {
@@ -70,7 +71,7 @@ public class AssigmentUtil {
     public static String getFieldAssignment(String tabSymb, Object obj, String fieldName, String value) {
         StringBuilder sb = new StringBuilder();
         sb.append(tabSymb).append(tabSymb)
-                .append(GenerationUtil.getInstName(obj.getClass()))
+                .append(getInstName(obj.getClass()))
                 .append(".")
                 .append(fieldName)
                 .append(" = ")
@@ -82,9 +83,9 @@ public class AssigmentUtil {
     public static String getFieldSetter(String tabSymb, Object obj, String fieldName, String value) {
         StringBuilder sb = new StringBuilder();
         sb.append(tabSymb).append(tabSymb)
-                .append(GenerationUtil.getInstName(obj.getClass()))
+                .append(getInstName(obj.getClass()))
                 .append(".set")
-                .append(GenerationUtil.upFirst(fieldName))
+                .append(upFirst(fieldName))
                 .append("(")
                 .append(value)
                 .append(");\n");
@@ -95,7 +96,7 @@ public class AssigmentUtil {
         Set<ProviderInfo> result = new HashSet<>();
         BufferedReader br = null;
         try {
-            InputStream inputStream = GenerationUtil.class.getClassLoader().getResourceAsStream(COMMON_METHODS_FILE);
+            InputStream inputStream = AssigmentUtil.class.getClassLoader().getResourceAsStream(COMMON_METHODS_FILE);
 
             boolean methodName = false;
             boolean methodBody = false;

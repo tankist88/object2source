@@ -42,7 +42,6 @@ public class ProviderInfo implements Serializable {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(getMethodName(), getMethodBody());
     }
 }

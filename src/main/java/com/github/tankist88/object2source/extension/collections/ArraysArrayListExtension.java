@@ -1,9 +1,11 @@
 package com.github.tankist88.object2source.extension.collections;
 
 import com.github.tankist88.object2source.dto.ProviderInfo;
-import com.github.tankist88.object2source.util.GenerationUtil;
 
 import java.util.Set;
+
+import static com.github.tankist88.object2source.util.GenerationUtil.getClassHierarchyStr;
+import static com.github.tankist88.object2source.util.GenerationUtil.getInstName;
 
 public class ArraysArrayListExtension extends AbstractCollectionExtension {
     @Override
@@ -12,7 +14,7 @@ public class ArraysArrayListExtension extends AbstractCollectionExtension {
         bb.append(getTabSymb())
           .append(getTabSymb())
           .append("return ")
-          .append(GenerationUtil.getInstName(java.util.ArrayList.class))
+          .append(getInstName(java.util.ArrayList.class))
           .append(";\n");
     }
 
@@ -23,6 +25,6 @@ public class ArraysArrayListExtension extends AbstractCollectionExtension {
 
     @Override
     public boolean isTypeSupported(Class clazz) {
-        return GenerationUtil.getClassHierarchyStr(clazz).contains("java.util.Arrays$ArrayList");
+        return getClassHierarchyStr(clazz).contains("java.util.Arrays$ArrayList");
     }
 }

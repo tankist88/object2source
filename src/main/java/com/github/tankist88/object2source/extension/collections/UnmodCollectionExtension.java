@@ -2,20 +2,21 @@ package com.github.tankist88.object2source.extension.collections;
 
 import com.github.tankist88.object2source.dto.ProviderInfo;
 import com.github.tankist88.object2source.util.ExtensionUtil;
-import com.github.tankist88.object2source.util.GenerationUtil;
 
 import java.util.AbstractCollection;
 import java.util.Set;
 
+import static com.github.tankist88.object2source.util.GenerationUtil.*;
+
 public class UnmodCollectionExtension extends AbstractCollectionExtension {
     @Override
     public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj) throws Exception {
-        Class realType = ExtensionUtil.getCollectionWrappedType(obj, AbstractCollection.class, GenerationUtil.getClassHierarchy(obj.getClass()));
+        Class realType = ExtensionUtil.getCollectionWrappedType(obj, AbstractCollection.class, getClassHierarchy(obj.getClass()));
 
         String methodName = "unmodifiableCollection";
-        if(GenerationUtil.getInterfacesHierarchyStr(realType).contains("java.util.List")) {
+        if(getInterfacesHierarchyStr(realType).contains("java.util.List")) {
             methodName = "unmodifiableList";
-        } else if(GenerationUtil.getInterfacesHierarchyStr(realType).contains("java.util.Set")) {
+        } else if(getInterfacesHierarchyStr(realType).contains("java.util.Set")) {
             methodName = "unmodifiableSet";
         }
 
@@ -27,7 +28,7 @@ public class UnmodCollectionExtension extends AbstractCollectionExtension {
           .append("java.util.Collections.")
           .append(methodName)
           .append("(")
-          .append(GenerationUtil.getInstName(realType))
+          .append(getInstName(realType))
           .append(")")
           .append(";\n");
     }
@@ -35,10 +36,10 @@ public class UnmodCollectionExtension extends AbstractCollectionExtension {
     @Override
     public String getActualType(Object obj) {
         try {
-            Class unmodifiableCollectionType = ExtensionUtil.getCollectionWrappedType(obj, AbstractCollection.class, GenerationUtil.getClassHierarchy(obj.getClass()));
-            if (GenerationUtil.getInterfacesHierarchyStr(unmodifiableCollectionType).contains("java.util.List")) {
+            Class unmodifiableCollectionType = ExtensionUtil.getCollectionWrappedType(obj, AbstractCollection.class, getClassHierarchy(obj.getClass()));
+            if (getInterfacesHierarchyStr(unmodifiableCollectionType).contains("java.util.List")) {
                 return "java.util.List";
-            } else if (GenerationUtil.getInterfacesHierarchyStr(unmodifiableCollectionType).contains("java.util.Set")) {
+            } else if (getInterfacesHierarchyStr(unmodifiableCollectionType).contains("java.util.Set")) {
                 return "java.util.Set";
             } else {
                 return "java.util.Collection";
@@ -50,6 +51,6 @@ public class UnmodCollectionExtension extends AbstractCollectionExtension {
 
     @Override
     public boolean isTypeSupported(Class clazz) {
-        return GenerationUtil.getClassHierarchyStr(clazz).contains("java.util.Collections$UnmodifiableCollection");
+        return getClassHierarchyStr(clazz).contains("java.util.Collections$UnmodifiableCollection");
     }
 }

@@ -12,8 +12,6 @@ import com.github.tankist88.object2source.extension.maps.BaseMapsExtension;
 import com.github.tankist88.object2source.extension.maps.EmptyMapExtension;
 import com.github.tankist88.object2source.extension.maps.UnmodMapExtension;
 import com.github.tankist88.object2source.extension.maps.UnmodSortedMapExtension;
-import com.github.tankist88.object2source.util.AssigmentUtil;
-import com.github.tankist88.object2source.util.GenerationUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -22,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.github.tankist88.object2source.util.AssigmentUtil.*;
+import static com.github.tankist88.object2source.util.GenerationUtil.*;
 import static java.lang.reflect.Modifier.*;
 
 public class SourceGenerator implements TypeGenerator {
@@ -55,7 +55,7 @@ public class SourceGenerator implements TypeGenerator {
         this.maxObjectDepth = DEFAULT_MAX_DEPTH;
         this.exceptionWhenMaxODepth = exceptionWhenMaxODepth;
         this.commonMethodsClassName = commonMethodsClassName;
-        this.commonMethods = AssigmentUtil.getCommonMethods(tabSymb);
+        this.commonMethods = getCommonMethods(tabSymb);
         this.extensions =  new ArrayList<>();
         this.extensionClasses = new HashSet<>();
         initEmbeddedExtensions();
@@ -115,35 +115,35 @@ public class SourceGenerator implements TypeGenerator {
         if (simpleInstance != null) {
             instBuilder.append(tabSymb).append("return ").append(simpleInstance.getInstanceCreator()).append(";\n");
         } else {
-            instBuilder.append(tabSymb).append(GenerationUtil.createInstStr(clazz, commonMethodsClassName)).append("\n");
-            List<Method> allMethods = GenerationUtil.getAllMethodsOfClass(classHierarchy);
-            for (Field field : GenerationUtil.getAllFieldsOfClass(classHierarchy)) {
+            instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
+            List<Method> allMethods = getAllMethodsOfClass(classHierarchy);
+            for (Field field : getAllFieldsOfClass(classHierarchy)) {
                 int fieldModifiers = field.getModifiers();
                 boolean deniedModifier = isStatic(fieldModifiers) || isNative(fieldModifiers);
                 Object fieldValue = null;
-                if (    deniedModifier || !allowedType(field.getType()) ||
-                        (!field.getType().isPrimitive() && (fieldValue = GenerationUtil.getFieldValue(field, obj)) == null))
-                {
+                if (deniedModifier || !allowedType(field.getType()) ||
+                    (!field.getType().isPrimitive() && (fieldValue = getFieldValue(field, obj)) == null)
+                ) {
                     continue;
                 }
-                if (fieldValue == null) fieldValue = GenerationUtil.getFieldValue(field, obj);
+                if (fieldValue == null) fieldValue = getFieldValue(field, obj);
                 InstanceCreateData instData = getInstanceCreateData(fieldValue, false, objectDepth);
                 if (instData == null) continue;
                 String fieldName = field.getName();
-                if (!isPublic(clazz.getModifiers()) || GenerationUtil.setterNotExists(fieldName, field, allMethods)) {
+                if (!isPublic(clazz.getModifiers()) || setterNotExists(fieldName, field, allMethods)) {
                     if (isPublic(fieldModifiers) && !isFinal(fieldModifiers)) {
-                        instBuilder.append(AssigmentUtil.getFieldAssignment(tabSymb, obj, fieldName, instData.getInstanceCreator()));
+                        instBuilder.append(getFieldAssignment(tabSymb, obj, fieldName, instData.getInstanceCreator()));
                     } else {
                         instBuilder .append(tabSymb).append(tabSymb)
-                                    .append(AssigmentUtil.getFieldNotPublicAssignment(obj, fieldName, instData.getInstanceCreator(), commonMethodsClassName))
+                                    .append(getFieldNotPublicAssignment(obj, fieldName, instData.getInstanceCreator(), commonMethodsClassName))
                                     .append(";\n");
                     }
                 } else {
-                    instBuilder.append(AssigmentUtil.getFieldSetter(tabSymb, obj, fieldName, instData.getInstanceCreator()));
+                    instBuilder.append(getFieldSetter(tabSymb, obj, fieldName, instData.getInstanceCreator()));
                 }
                 result.getDataProviderMethods().addAll(instData.getDataProviderMethods());
             }
-            instBuilder.append(tabSymb).append(tabSymb).append("return ").append(GenerationUtil.getInstName(clazz)).append(";\n");
+            instBuilder.append(tabSymb).append(tabSymb).append("return ").append(getInstName(clazz)).append(";\n");
         }
         result.setInstanceCreator(instBuilder.toString());
         return result;
@@ -169,7 +169,7 @@ public class SourceGenerator implements TypeGenerator {
         } else if (clazz.equals(char.class) || clazz.equals(Character.class)) {
             result = new InstanceCreateData("'" +
                     Character.toString(obj.toString().charAt(0))
-                            .replaceAll("([\\\\])", GenerationUtil.ESCAPE_STRING_REPLACE)
+                            .replaceAll("([\\\\])", ESCAPE_STRING_REPLACE)
                             .replaceAll("\r", "\\\\r")
                             .replaceAll("\n", "\\\\n")
                             .replaceAll("\t", "\\\\t")
@@ -180,7 +180,7 @@ public class SourceGenerator implements TypeGenerator {
             result = new InstanceCreateData("(byte) " + Byte.valueOf(obj.toString()).toString());
         } else if (clazz.equals(String.class)) {
             String escapedVal = obj.toString()
-                    .replaceAll(GenerationUtil.ESCAPE_STRING_REGEX, GenerationUtil.ESCAPE_STRING_REPLACE)
+                    .replaceAll(ESCAPE_STRING_REGEX, ESCAPE_STRING_REPLACE)
                     .replaceAll("\r", "\\\\r")
                     .replaceAll("\n", "\\\\n")
                     .replaceAll("\t", "\\\\t");
@@ -209,23 +209,23 @@ public class SourceGenerator implements TypeGenerator {
                     val.getMostSignificantBits() + "L" +
                     ", " +
                     val.getLeastSignificantBits() + "L)");
-        } else if (GenerationUtil.getClassHierarchyStr(clazz).contains(java.util.Calendar.class.getName())) {
+        } else if (getClassHierarchyStr(clazz).contains(java.util.Calendar.class.getName())) {
             java.util.Calendar val = (java.util.Calendar) obj;
-            String methodCall = AssigmentUtil.getCalendarInstanceMethod(
+            String methodCall = getCalendarInstanceMethod(
                     "\"" + val.getTimeZone().getID() + "\"",
                     val.getTimeInMillis() + "L",
                     commonMethodsClassName
             );
             result = new InstanceCreateData(methodCall);
-        } else if (GenerationUtil.getClassHierarchyStr(clazz).contains(java.util.TimeZone.class.getName())) {
+        } else if (getClassHierarchyStr(clazz).contains(java.util.TimeZone.class.getName())) {
             java.util.TimeZone val = (java.util.TimeZone) obj;
             result = new InstanceCreateData("(" + clazz.getName() + ") java.util.TimeZone.getTimeZone(\"" + val.getID() + "\")");
         } else if (clazz.isEnum()) {
             Enum val = (Enum) obj;
-            String enumType = GenerationUtil.getClearedClassName(clazz.getName());
+            String enumType = getClearedClassName(clazz.getName());
             result = new InstanceCreateData(enumType + "." + val.name());
         } else if (!onlySimple && allowedType(clazz)) {
-            String fieldName = clazz.isArray() ? "array" : GenerationUtil.getInstName(clazz.getName(), false);
+            String fieldName = clazz.isArray() ? "array" : getInstName(clazz.getName(), false);
             ProviderResult providerResult = createDataProviderMethod(obj, fieldName, objectDepth);
             result = new InstanceCreateData(providerResult.getEndPoint().getMethodName());
             result.getDataProviderMethods().addAll(providerResult.getProviders());
@@ -238,10 +238,10 @@ public class SourceGenerator implements TypeGenerator {
     @Override
     public ProviderResult createDataProviderMethod(Object obj) {
         if (obj == null || !allowedType(obj.getClass())) return null;
-        boolean anonymousClass = GenerationUtil.getLastClassShort(obj.getClass().getName()).matches("\\d+");
+        boolean anonymousClass = getLastClassShort(obj.getClass().getName()).matches("\\d+");
         if(anonymousClass) return null;
         Class<?> clazz = obj.getClass();
-        String fieldName = clazz.isArray() ? "array" : GenerationUtil.getInstName(clazz.getName(), false);
+        String fieldName = clazz.isArray() ? "array" : getInstName(clazz.getName(), false);
         int objectDepth = maxObjectDepth;
         try {
             return createDataProviderMethod(obj, fieldName, objectDepth);
@@ -263,16 +263,16 @@ public class SourceGenerator implements TypeGenerator {
         if (extension != null) {
             extension.fillMethodBody(bodyBuilder, providers, objectDepth, obj);
         } else {
-            fillMethodBody(obj, bodyBuilder, providers, GenerationUtil.getClassHierarchy(clazz), objectDepth);
+            fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(clazz), objectDepth);
         }
 
-        Class<?> actClass = !isPublic(clazz.getModifiers()) ? GenerationUtil.getFirstPublicType(clazz) : clazz;
+        Class<?> actClass = !isPublic(clazz.getModifiers()) ? getFirstPublicType(clazz) : clazz;
         String typeName = extension != null ? extension.getActualType(obj) : actClass.getName();
         String methodBody = bodyBuilder.toString();
-        String providerMethodName = GenerationUtil.getDataProviderMethodName(fieldName, methodBody.hashCode());
+        String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
 
 
-        String method = tabSymb + "public static " + GenerationUtil.getClearedClassName(typeName) + " " +
+        String method = tabSymb + "public static " + getClearedClassName(typeName) + " " +
                         providerMethodName + " throws Exception {\n" + methodBody + tabSymb + "}\n";
 
         ProviderResult result = new ProviderResult();

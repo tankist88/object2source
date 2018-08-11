@@ -1,9 +1,10 @@
 package com.github.tankist88.object2source.extension.collections;
 
 import com.github.tankist88.object2source.dto.ProviderInfo;
-import com.github.tankist88.object2source.util.GenerationUtil;
 
 import java.util.Set;
+
+import static com.github.tankist88.object2source.util.GenerationUtil.getClassHierarchyStr;
 
 public class EmptySetExtension extends AbstractCollectionExtension {
     @Override
@@ -22,6 +23,6 @@ public class EmptySetExtension extends AbstractCollectionExtension {
 
     @Override
     public boolean isTypeSupported(Class clazz) {
-        return GenerationUtil.getClassHierarchyStr(clazz).contains("java.util.Collections$EmptySet");
+        return getClassHierarchyStr(clazz).contains("java.util.Collections$EmptySet");
     }
 }

@@ -2,15 +2,16 @@ package com.github.tankist88.object2source.extension.maps;
 
 import com.github.tankist88.object2source.dto.ProviderInfo;
 import com.github.tankist88.object2source.util.ExtensionUtil;
-import com.github.tankist88.object2source.util.GenerationUtil;
 
 import java.util.AbstractMap;
 import java.util.Set;
 
+import static com.github.tankist88.object2source.util.GenerationUtil.*;
+
 public class UnmodSortedMapExtension extends AbstractMapExtension {
     @Override
     public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj) throws Exception {
-        Class realType = ExtensionUtil.getCollectionWrappedType(obj, AbstractMap.class, GenerationUtil.getClassHierarchy(obj.getClass()));
+        Class realType = ExtensionUtil.getCollectionWrappedType(obj, AbstractMap.class, getClassHierarchy(obj.getClass()));
 
         createAbstractMapInstance(obj, bb, providers, realType, objectDepth);
 
@@ -19,7 +20,7 @@ public class UnmodSortedMapExtension extends AbstractMapExtension {
           .append("return ")
           .append("java.util.Collections.unmodifiableSortedMap")
           .append("(")
-          .append(GenerationUtil.getInstName(realType))
+          .append(getInstName(realType))
           .append(")")
           .append(";\n");
     }
@@ -31,6 +32,6 @@ public class UnmodSortedMapExtension extends AbstractMapExtension {
 
     @Override
     public boolean isTypeSupported(Class clazz) {
-        return GenerationUtil.getClassHierarchyStr(clazz).contains("java.util.Collections$UnmodifiableSortedMap");
+        return getClassHierarchyStr(clazz).contains("java.util.Collections$UnmodifiableSortedMap");
     }
 }

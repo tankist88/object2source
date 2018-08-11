@@ -3,10 +3,12 @@ package com.github.tankist88.object2source.extension.maps;
 import com.github.tankist88.object2source.dto.InstanceCreateData;
 import com.github.tankist88.object2source.dto.ProviderInfo;
 import com.github.tankist88.object2source.extension.AbstractEmbeddedExtension;
-import com.github.tankist88.object2source.util.GenerationUtil;
 
 import java.util.Map;
 import java.util.Set;
+
+import static com.github.tankist88.object2source.util.GenerationUtil.createInstStr;
+import static com.github.tankist88.object2source.util.GenerationUtil.getInstName;
 
 public abstract class AbstractMapExtension extends AbstractEmbeddedExtension {
     public void createAbstractMapInstance(Object obj, StringBuilder sb, Set<ProviderInfo> providers, int objectDepth) throws Exception {
@@ -16,7 +18,7 @@ public abstract class AbstractMapExtension extends AbstractEmbeddedExtension {
     public void createAbstractMapInstance(Object obj, StringBuilder sb, Set<ProviderInfo> providers, Class collectionClass, int objectDepth) throws Exception {
         sb.append(getTabSymb())
           .append(getTabSymb())
-          .append(GenerationUtil.createInstStr(collectionClass, sourceGenerator.getCommonMethodsClassName()))
+          .append(createInstStr(collectionClass, sourceGenerator.getCommonMethodsClassName()))
           .append("\n");
 
         for (Object o : ((Map) obj).entrySet()) {
@@ -27,7 +29,7 @@ public abstract class AbstractMapExtension extends AbstractEmbeddedExtension {
 
             sb.append(getTabSymb())
               .append(getTabSymb())
-              .append(GenerationUtil.getInstName(collectionClass))
+              .append(getInstName(collectionClass))
               .append(".")
               .append("put(")
               .append(dataKey.getInstanceCreator())

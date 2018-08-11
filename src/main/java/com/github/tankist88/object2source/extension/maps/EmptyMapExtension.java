@@ -1,9 +1,10 @@
 package com.github.tankist88.object2source.extension.maps;
 
 import com.github.tankist88.object2source.dto.ProviderInfo;
-import com.github.tankist88.object2source.util.GenerationUtil;
 
 import java.util.Set;
+
+import static com.github.tankist88.object2source.util.GenerationUtil.getClassHierarchyStr;
 
 public class EmptyMapExtension extends AbstractMapExtension {
     @Override
@@ -22,6 +23,6 @@ public class EmptyMapExtension extends AbstractMapExtension {
 
     @Override
     public boolean isTypeSupported(Class clazz) {
-        return GenerationUtil.getClassHierarchyStr(clazz).contains("java.util.Collections$EmptyMap");
+        return getClassHierarchyStr(clazz).contains("java.util.Collections$EmptyMap");
     }
 }
