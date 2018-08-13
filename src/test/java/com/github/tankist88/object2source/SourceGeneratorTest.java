@@ -316,4 +316,14 @@ public class SourceGeneratorTest {
         assertTrue(sg.allowedType(boolean.class));
         assertFalse(sg.allowedType(ArrayList.class));
     }
+
+    @Test
+    public void fillMethodBaseTest() {
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createFillObjectMethod(new TestObj());
+        System.out.println(pr.getEndPoint().getMethodBody());
+//        for (ProviderInfo pi : pr.getProviders()) {
+//            System.out.println(pi.getMethodBody());
+//        }
+    }
 }

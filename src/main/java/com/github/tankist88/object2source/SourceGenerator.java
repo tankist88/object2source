@@ -24,7 +24,7 @@ import static com.github.tankist88.object2source.util.AssigmentUtil.*;
 import static com.github.tankist88.object2source.util.GenerationUtil.*;
 import static java.lang.reflect.Modifier.*;
 
-public class SourceGenerator implements TypeGenerator {
+public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     static final int DEFAULT_MAX_DEPTH = 10;
 
     private Set<String> allowedPackages;
@@ -100,6 +100,10 @@ public class SourceGenerator implements TypeGenerator {
     }
 
     private InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
+        return generateObjInstance(obj, classHierarchy, objectDepth, true);
+    }
+
+    private InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth, boolean createInst) throws Exception {
         if (objectDepth <= 0 && exceptionWhenMaxODepth) {
             throw new ObjectDepthExceededException("Object depth exceeded. " + obj.getClass());
         } else if (objectDepth <= 0 || obj == null || !allowedType(obj.getClass())) {
@@ -113,9 +117,15 @@ public class SourceGenerator implements TypeGenerator {
 
         InstanceCreateData simpleInstance = getInstanceCreateData(obj, true, objectDepth);
         if (simpleInstance != null) {
-            instBuilder.append(tabSymb).append("return ").append(simpleInstance.getInstanceCreator()).append(";\n");
+            if (createInst) {
+                instBuilder.append(tabSymb).append("return ").append(simpleInstance.getInstanceCreator()).append(";\n");
+            } else {
+                instBuilder.append(tabSymb).append("return;\n");
+            }
         } else {
-            instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
+            if (createInst) {
+                instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
+            }
             List<Method> allMethods = getAllMethodsOfClass(classHierarchy);
             for (Field field : getAllFieldsOfClass(classHierarchy)) {
                 int fieldModifiers = field.getModifiers();
@@ -143,7 +153,9 @@ public class SourceGenerator implements TypeGenerator {
                 }
                 result.getDataProviderMethods().addAll(instData.getDataProviderMethods());
             }
-            instBuilder.append(tabSymb).append(tabSymb).append("return ").append(getInstName(clazz)).append(";\n");
+            if (createInst) {
+                instBuilder.append(tabSymb).append(tabSymb).append("return ").append(getInstName(clazz)).append(";\n");
+            }
         }
         result.setInstanceCreator(instBuilder.toString());
         return result;
@@ -237,20 +249,33 @@ public class SourceGenerator implements TypeGenerator {
 
     @Override
     public ProviderResult createDataProviderMethod(Object obj) {
+        return createDataProviderMethod(obj, false);
+    }
+
+    @Override
+    public ProviderResult createFillObjectMethod(Object obj) {
+        return createDataProviderMethod(obj, true);
+    }
+
+    private ProviderResult createDataProviderMethod(Object obj, boolean fillObj) {
         if (obj == null || !allowedType(obj.getClass())) return null;
         boolean anonymousClass = getLastClassShort(obj.getClass().getName()).matches("\\d+");
-        if(anonymousClass) return null;
+        if (anonymousClass) return null;
         Class<?> clazz = obj.getClass();
         String fieldName = clazz.isArray() ? "array" : getInstName(clazz.getName(), false);
         int objectDepth = maxObjectDepth;
         try {
-            return createDataProviderMethod(obj, fieldName, objectDepth);
+            return createDataProviderMethod(obj, fieldName, fillObj, objectDepth);
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
     }
 
     private ProviderResult createDataProviderMethod(Object obj, String fieldName, int objectDepth) throws Exception {
+        return createDataProviderMethod(obj, fieldName, false, objectDepth);
+    }
+
+    private ProviderResult createDataProviderMethod(Object obj, String fieldName, boolean fillObj, int objectDepth) throws Exception {
         Set<ProviderInfo> providers = new HashSet<>();
 
         int nextObjectDepth = objectDepth - 1;
@@ -261,19 +286,20 @@ public class SourceGenerator implements TypeGenerator {
 
         Extension extension = findExtension(clazz);
         if (extension != null) {
-            extension.fillMethodBody(bodyBuilder, providers, nextObjectDepth, obj);
+            if (fillObj && !extension.isFillingSupported()) return null;
+            extension.fillMethodBody(bodyBuilder, providers, nextObjectDepth, obj, fillObj);
         } else {
-            fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(clazz), nextObjectDepth);
+            fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(clazz), nextObjectDepth, fillObj);
         }
 
         Class<?> actClass = !isPublic(clazz.getModifiers()) ? getFirstPublicType(clazz) : clazz;
         String typeName = extension != null ? extension.getActualType(obj) : actClass.getName();
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
-
-        String method = tabSymb + "public static " + getClearedClassName(typeName) + " " +
-                        providerMethodName + " throws Exception {\n" + methodBody + tabSymb + "}\n";
-
+        String args = fillObj ? "(" + getClearedClassName(typeName) + " " + fieldName + ")" : "()";
+        String retType = fillObj ? "void" : getClearedClassName(typeName);
+        String method = tabSymb + "public static " + retType + " " +
+                        providerMethodName + args + " throws Exception {\n" + methodBody + tabSymb + "}\n";
         ProviderResult result = new ProviderResult();
         result.setEndPoint(new ProviderInfo(providerMethodName, method));
         result.setProviders(providers);
@@ -298,8 +324,8 @@ public class SourceGenerator implements TypeGenerator {
         return false;
     }
 
-    private void fillMethodBody(Object obj, StringBuilder bb, Set<ProviderInfo> result, List<Class> classHierarchy, int objectDepth) throws Exception {
-        InstanceCreateData objGenerateResult = generateObjInstance(obj, classHierarchy, objectDepth);
+    private void fillMethodBody(Object obj, StringBuilder bb, Set<ProviderInfo> result, List<Class> classHierarchy, int objectDepth, boolean fillObj) throws Exception {
+        InstanceCreateData objGenerateResult = generateObjInstance(obj, classHierarchy, objectDepth, !fillObj);
         bb.append(tabSymb).append(objGenerateResult.getInstanceCreator());
         result.addAll(objGenerateResult.getDataProviderMethods());
     }

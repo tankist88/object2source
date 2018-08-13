@@ -8,7 +8,7 @@ import static com.github.tankist88.object2source.util.GenerationUtil.getClassHie
 
 public class EmptySetExtension extends AbstractCollectionExtension {
     @Override
-    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj) throws Exception {
+    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
         bb.append(getTabSymb())
           .append(getTabSymb())
           .append("return ")

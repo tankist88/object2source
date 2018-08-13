@@ -46,7 +46,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
     }
 
     @Override
-    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj) throws Exception {
+    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
         String fieldName = "array";
 
         StringBuilder arrayValues = new StringBuilder();

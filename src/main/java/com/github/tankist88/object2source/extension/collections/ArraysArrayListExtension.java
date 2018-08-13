@@ -9,7 +9,7 @@ import static com.github.tankist88.object2source.util.GenerationUtil.getInstName
 
 public class ArraysArrayListExtension extends AbstractCollectionExtension {
     @Override
-    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj) throws Exception {
+    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
         createAbstractCollectionInstance(obj, bb, providers, java.util.ArrayList.class, objectDepth);
         bb.append(getTabSymb())
           .append(getTabSymb())
