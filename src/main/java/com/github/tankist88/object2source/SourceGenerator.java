@@ -107,7 +107,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         if (objectDepth <= 0 && exceptionWhenMaxODepth) {
             throw new ObjectDepthExceededException("Object depth exceeded. " + obj.getClass());
         } else if (objectDepth <= 0 || obj == null || !allowedType(obj.getClass())) {
-            return new InstanceCreateData(tabSymb + "return null;\n");
+            return new InstanceCreateData(tabSymb + tabSymb + "return null;\n");
         }
 
         InstanceCreateData result = new InstanceCreateData();
@@ -118,13 +118,13 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         InstanceCreateData simpleInstance = getInstanceCreateData(obj, true, objectDepth);
         if (simpleInstance != null) {
             if (createInst) {
-                instBuilder.append(tabSymb).append("return ").append(simpleInstance.getInstanceCreator()).append(";\n");
+                instBuilder.append(tabSymb).append(tabSymb).append("return ").append(simpleInstance.getInstanceCreator()).append(";\n");
             } else {
-                instBuilder.append(tabSymb).append("return;\n");
+                instBuilder.append(tabSymb).append(tabSymb).append("return;\n");
             }
         } else {
             if (createInst) {
-                instBuilder.append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
+                instBuilder.append(tabSymb).append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
             }
             List<Method> allMethods = getAllMethodsOfClass(classHierarchy);
             for (Field field : getAllFieldsOfClass(classHierarchy)) {
@@ -301,7 +301,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         String method = tabSymb + "public static " + retType + " " +
                         providerMethodName + args + " throws Exception {\n" + methodBody + tabSymb + "}\n";
         ProviderResult result = new ProviderResult();
-        result.setEndPoint(new ProviderInfo(providerMethodName, method));
+        result.setEndPoint(new ProviderInfo(providerMethodName + args, method));
         result.setProviders(providers);
         result.getProviders().add(result.getEndPoint());
         if (commonMethodsClassName == null) {
@@ -326,7 +326,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
 
     private void fillMethodBody(Object obj, StringBuilder bb, Set<ProviderInfo> result, List<Class> classHierarchy, int objectDepth, boolean fillObj) throws Exception {
         InstanceCreateData objGenerateResult = generateObjInstance(obj, classHierarchy, objectDepth, !fillObj);
-        bb.append(tabSymb).append(objGenerateResult.getInstanceCreator());
+        bb.append(objGenerateResult.getInstanceCreator());
         result.addAll(objGenerateResult.getDataProviderMethods());
     }
 
