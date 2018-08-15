@@ -99,10 +99,6 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         this.maxObjectDepth = maxObjectDepth;
     }
 
-    private InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
-        return generateObjInstance(obj, classHierarchy, objectDepth, true);
-    }
-
     private InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth, boolean createInst) throws Exception {
         if (objectDepth <= 0 && exceptionWhenMaxODepth) {
             throw new ObjectDepthExceededException("Object depth exceeded. " + obj.getClass());
@@ -117,10 +113,11 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
 
         InstanceCreateData simpleInstance = getInstanceCreateData(obj, true, objectDepth);
         if (simpleInstance != null) {
+            instBuilder.append(tabSymb).append(tabSymb).append("return");
             if (createInst) {
-                instBuilder.append(tabSymb).append(tabSymb).append("return ").append(simpleInstance.getInstanceCreator()).append(";\n");
+                instBuilder.append(" ").append(simpleInstance.getInstanceCreator()).append(";\n");
             } else {
-                instBuilder.append(tabSymb).append(tabSymb).append("return;\n");
+                instBuilder.append("return;\n");
             }
         } else {
             if (createInst) {
@@ -164,6 +161,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     public InstanceCreateData getInstanceCreateData(Object obj, int objectDepth) throws Exception {
         return getInstanceCreateData(obj, false, objectDepth);
     }
+
     private InstanceCreateData getInstanceCreateData(Object obj, boolean onlySimple, int objectDepth) throws Exception {
         if (obj == null) return new InstanceCreateData("null");
         InstanceCreateData result = null;

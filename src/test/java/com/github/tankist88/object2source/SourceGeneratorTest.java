@@ -321,9 +321,8 @@ public class SourceGeneratorTest {
     public void fillMethodBaseTest() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createFillObjectMethod(new TestObj());
-        System.out.println(pr.getEndPoint().getMethodBody());
-//        for (ProviderInfo pi : pr.getProviders()) {
-//            System.out.println(pi.getMethodBody());
-//        }
+        assertTrue(pr.getEndPoint().getMethodBody().contains("public static void getTestObj_260103293(" +
+                "com.github.tankist88.object2source.TestObj testObj) throws Exception"));
+        assertFalse(pr.getEndPoint().getMethodBody().contains("return"));
     }
 }
