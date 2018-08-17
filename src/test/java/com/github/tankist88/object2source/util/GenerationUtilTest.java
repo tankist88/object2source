@@ -2,6 +2,7 @@ package com.github.tankist88.object2source.util;
 
 import com.github.tankist88.object2source.extension.collections.UnmodCollectionExtension;
 import com.github.tankist88.object2source.test.IntHierarchyTest;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.Method;
@@ -97,10 +98,7 @@ public class GenerationUtilTest {
 
     @Test
     public void getParameterizedTypesTest() {
-        List<Class> types = GenerationUtil.getParameterizedTypes((new ArrayList<Integer>()).getClass());
-        for(Class c : types) {
-            System.out.println(c.getName());
-        }
+        GenerationUtil.getParameterizedTypes((new ArrayList<Integer>()).getClass());
     }
 
     @Test
@@ -159,7 +157,6 @@ public class GenerationUtilTest {
         assertEquals(hierarchy.size(), controlValues.size(),
                 "Returned interface hierarchy size not equal expected size.");
         for (String s : controlValues) {
-            System.out.println(s);
             assertTrue(hierarchy.contains(s), "Interface " + s + " not found.");
         }
     }
@@ -168,5 +165,30 @@ public class GenerationUtilTest {
     public void getFirstClassNameTest() {
         String cn = GenerationUtil.getFirstClassName("com.sun.proxy.$Proxy117");
         assertEquals(cn, "Proxy117");
+    }
+
+    @Test(dataProvider = "convertPrimitiveToWrapperDataProvider")
+    public void convertPrimitiveToWrapperClassTest(Class type, Class result) {
+        assertEquals(GenerationUtil.convertPrimitiveToWrapper(type), result);
+    }
+
+    @Test(dataProvider = "convertPrimitiveToWrapperDataProvider")
+    public void convertPrimitiveToWrapperStrTest(Class type, Class result) {
+        assertEquals(GenerationUtil.convertPrimitiveToWrapper(type.getName()), result.getName());
+    }
+
+    @DataProvider
+    public Object[][] convertPrimitiveToWrapperDataProvider() {
+        return new Object[][] {
+                {boolean.class, Boolean.class},
+                {char.class, Character.class},
+                {byte.class, Byte.class},
+                {short.class, Short.class},
+                {int.class, Integer.class},
+                {long.class, Long.class},
+                {float.class, Float.class},
+                {double.class, Double.class},
+                {String.class, String.class}
+        };
     }
 }
