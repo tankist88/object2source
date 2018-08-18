@@ -48,13 +48,13 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
     @Override
     public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj) throws Exception {
         String fieldName = "array";
-
         StringBuilder arrayValues = new StringBuilder();
         List<Integer> arraySizeList = new ArrayList<>();
         if (obj instanceof boolean[]) {
             boolean[] arr = ((boolean[]) obj);
             arraySizeList.add(arr.length);
             for (int i = 0; i < arr.length; i++) {
+                if (!arr[i]) continue;
                 String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
                 arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
             }
@@ -62,6 +62,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
             byte[] arr = ((byte[]) obj);
             arraySizeList.add(arr.length);
             for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == (byte) 0) continue;
                 String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
                 arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
             }
@@ -69,6 +70,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
             char[] arr = ((char[]) obj);
             arraySizeList.add(arr.length);
             for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == '\u0000') continue;
                 String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
                 arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
             }
@@ -76,6 +78,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
             short[] arr = ((short[]) obj);
             arraySizeList.add(arr.length);
             for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == (short) 0) continue;
                 String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
                 arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
             }
@@ -83,6 +86,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
             int[] arr = ((int[]) obj);
             arraySizeList.add(arr.length);
             for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == 0) continue;
                 String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
                 arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
             }
@@ -90,6 +94,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
             long[] arr = ((long[]) obj);
             arraySizeList.add(arr.length);
             for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == 0L) continue;
                 String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
                 arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
             }
@@ -97,6 +102,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
             float[] arr = ((float[]) obj);
             arraySizeList.add(arr.length);
             for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == 0.0f) continue;
                 String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
                 arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
             }
@@ -104,69 +110,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
             double[] arr = ((double[]) obj);
             arraySizeList.add(arr.length);
             for (int i = 0; i < arr.length; i++) {
-                String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
-                arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
-            }
-        } else if (obj instanceof String[]) {
-            String[] arr = ((String[]) obj);
-            arraySizeList.add(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
-                arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
-            }
-        } else if (obj instanceof java.math.BigDecimal[]) {
-            java.math.BigDecimal[] arr = ((java.math.BigDecimal[]) obj);
-            arraySizeList.add(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
-                arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
-            }
-        } else if (obj instanceof java.math.BigInteger[]) {
-            java.math.BigInteger[] arr = ((java.math.BigInteger[]) obj);
-            arraySizeList.add(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
-                arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
-            }
-        } else if (obj instanceof java.sql.Timestamp[]) {
-            java.sql.Timestamp[] arr = ((java.sql.Timestamp[]) obj);
-            arraySizeList.add(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
-                arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
-            }
-        } else if (obj instanceof java.sql.Time[]) {
-            java.sql.Time[] arr = ((java.sql.Time[]) obj);
-            arraySizeList.add(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
-                arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
-            }
-        } else if (obj instanceof java.sql.Date[]) {
-            java.sql.Date[] arr = ((java.sql.Date[]) obj);
-            arraySizeList.add(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
-                arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
-            }
-        } else if (obj instanceof java.util.Date[]) {
-            java.util.Date[] arr = ((java.util.Date[]) obj);
-            arraySizeList.add(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
-                arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
-            }
-        } else if (obj instanceof java.util.UUID[]) {
-            java.util.UUID[] arr = ((java.util.UUID[]) obj);
-            arraySizeList.add(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
-                arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
-            }
-        } else if (obj instanceof java.util.Calendar[]) {
-            java.util.Calendar[] arr = ((java.util.Calendar[]) obj);
-            arraySizeList.add(arr.length);
-            for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == 0.0d) continue;
                 String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
                 arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));
             }
@@ -181,6 +125,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
                 }
             }
             for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == null) continue;
                 InstanceCreateData data = sourceGenerator.getInstanceCreateData(arr[i], objectDepth);
                 arrayValues.append(createArrayElementString(fieldName, data.getInstanceCreator(), i, getTabSymb()));
                 providers.addAll(data.getDataProviderMethods());
