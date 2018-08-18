@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.testng.Assert.*;
+import static org.testng.Assert.assertTrue;
 
 public class SourceGeneratorTest {
     private TestObj createTestObj() {
@@ -309,7 +310,7 @@ public class SourceGeneratorTest {
     }
 
     @Test
-    public void allowedType() {
+    public void allowedTypeTest() {
         SourceGenerator sg = new SourceGenerator();
         sg.getAllowedPackages().add("java.lang");
         assertTrue(sg.allowedType(Boolean.class));
@@ -318,10 +319,23 @@ public class SourceGeneratorTest {
     }
 
     @Test
+    public void nullCollectionTest() {
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createDataProviderMethod(Arrays.asList(null, null));
+        assertNotNull(pr);
+        assertNotNull(pr.getEndPoint());
+        assertTrue(pr.getProviders().size() > 1);
+        assertTrue(pr.getEndPoint().getMethodBody().contains("public static java.util.List getArraysArrayList_1238037610() throws Exception"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("java.util.ArrayList _arrayList = new java.util.ArrayList();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("_arrayList.add(null);"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("return _arrayList;"));
+    }
+
+    @Test
     public void fillMethodBaseTest() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createFillObjectMethod(new TestObj());
-        assertTrue(pr.getEndPoint().getMethodBody().contains("public static void getTestObj_260103293(" +
+        assertTrue(pr.getEndPoint().getMethodBody().contains("public static void getTestObj__1299165005(" +
                 "com.github.tankist88.object2source.TestObj testObj) throws Exception"));
         assertFalse(pr.getEndPoint().getMethodBody().contains("return"));
     }
