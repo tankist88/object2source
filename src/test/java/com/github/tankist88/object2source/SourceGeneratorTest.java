@@ -3,6 +3,7 @@ package com.github.tankist88.object2source;
 import com.github.tankist88.object2source.dto.InstanceCreateData;
 import com.github.tankist88.object2source.dto.ProviderInfo;
 import com.github.tankist88.object2source.dto.ProviderResult;
+import com.github.tankist88.object2source.exception.FillingNotSupportedException;
 import com.github.tankist88.object2source.test.Cyclic1;
 import com.github.tankist88.object2source.test.Cyclic2;
 import com.github.tankist88.object2source.test.PrivateStaticClassTest;
@@ -332,11 +333,17 @@ public class SourceGeneratorTest {
     }
 
     @Test
-    public void fillMethodBaseTest() {
+    public void fillMethodBaseTest() throws FillingNotSupportedException {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createFillObjectMethod(new TestObj(123L, "toboty vpered!"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("public static void getTestObj__1815918072(" +
                 "com.github.tankist88.object2source.TestObj _testObj) throws Exception"));
         assertFalse(pr.getEndPoint().getMethodBody().contains("return"));
+    }
+
+    @Test(expectedExceptions = FillingNotSupportedException.class)
+    public void fillMethodArrayTest() throws FillingNotSupportedException {
+        SourceGenerator sg = new SourceGenerator();
+        sg.createFillObjectMethod(new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     }
 }

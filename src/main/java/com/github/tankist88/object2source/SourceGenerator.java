@@ -3,6 +3,7 @@ package com.github.tankist88.object2source;
 import com.github.tankist88.object2source.dto.InstanceCreateData;
 import com.github.tankist88.object2source.dto.ProviderInfo;
 import com.github.tankist88.object2source.dto.ProviderResult;
+import com.github.tankist88.object2source.exception.FillingNotSupportedException;
 import com.github.tankist88.object2source.exception.ObjectDepthExceededException;
 import com.github.tankist88.object2source.extension.EmbeddedExtension;
 import com.github.tankist88.object2source.extension.Extension;
@@ -247,15 +248,19 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
 
     @Override
     public ProviderResult createDataProviderMethod(Object obj) {
-        return createDataProviderMethod(obj, false);
+        try {
+            return createDataProviderMethod(obj, false);
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     @Override
-    public ProviderResult createFillObjectMethod(Object obj) {
+    public ProviderResult createFillObjectMethod(Object obj) throws FillingNotSupportedException {
         return createDataProviderMethod(obj, true);
     }
 
-    private ProviderResult createDataProviderMethod(Object obj, boolean fillObj) {
+    private ProviderResult createDataProviderMethod(Object obj, boolean fillObj) throws FillingNotSupportedException {
         if (obj == null || !allowedType(obj.getClass())) return null;
         boolean anonymousClass = getLastClassShort(obj.getClass().getName()).matches("\\d+");
         if (anonymousClass) return null;
@@ -264,6 +269,8 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         int objectDepth = maxObjectDepth;
         try {
             return createDataProviderMethod(obj, fieldName, fillObj, objectDepth);
+        } catch (FillingNotSupportedException fillEx) {
+            throw fillEx;
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
@@ -281,21 +288,33 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         StringBuilder bodyBuilder = new StringBuilder();
 
         Class<?> clazz = obj.getClass();
+        Class<?> actClass = !isPublic(clazz.getModifiers()) ? getFirstPublicType(clazz) : clazz;
+        String typeName;
 
         Extension extension = findExtension(clazz);
         if (extension != null) {
-            if (fillObj && !extension.isFillingSupported()) return null;
+            if (fillObj && !extension.isFillingSupported()) {
+                throw new FillingNotSupportedException(
+                        "Extension " + extension.getClass().getName() + " not supported filling objects"
+                );
+            }
+            typeName = extension.getActualType(obj);
             extension.fillMethodBody(bodyBuilder, providers, nextObjectDepth, obj, fillObj);
         } else {
+            typeName = actClass.getName();
             fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(clazz), nextObjectDepth, fillObj);
         }
-
-        Class<?> actClass = !isPublic(clazz.getModifiers()) ? getFirstPublicType(clazz) : clazz;
-        String typeName = extension != null ? extension.getActualType(obj) : actClass.getName();
+        String args;
+        String retType;
+        if (fillObj) {
+            args = "(" + getClearedClassName(typeName) + " " + getInstName(clazz) + ")";
+            retType = "void";
+        } else {
+            args = "()";
+            retType = getClearedClassName(typeName);
+        }
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
-        String args = fillObj ? "(" + getClearedClassName(typeName) + " " + getInstName(clazz) + ")" : "()";
-        String retType = fillObj ? "void" : getClearedClassName(typeName);
         String method = tabSymb + "public static " + retType + " " +
                         providerMethodName + args + " throws Exception {\n" + methodBody + tabSymb + "}\n";
         ProviderResult result = new ProviderResult();
@@ -305,7 +324,6 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         if (commonMethodsClassName == null) {
             result.getProviders().addAll(commonMethods);
         }
-
         return result;
     }
 
@@ -341,6 +359,9 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
 
     @Override
     public Extension findExtension(Class clazz) {
+        for (Extension ext : extensions) {
+            if (ext.isTypeSupported(clazz) && ext.isFillingSupported()) return ext;
+        }
         for (Extension ext : extensions) {
             if (ext.isTypeSupported(clazz)) return ext;
         }
