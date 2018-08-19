@@ -106,57 +106,63 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         } else if (objectDepth <= 0 || obj == null || !allowedType(obj.getClass())) {
             return new InstanceCreateData(tabSymb + tabSymb + "return null;\n");
         }
-
         InstanceCreateData result = new InstanceCreateData();
         StringBuilder instBuilder = new StringBuilder();
-
         Class<?> clazz = obj.getClass();
-
         InstanceCreateData simpleInstance = getInstanceCreateData(obj, true, objectDepth);
         if (simpleInstance != null) {
-            instBuilder.append(tabSymb).append(tabSymb).append("return");
-            if (createInst) {
-                instBuilder.append(" ").append(simpleInstance.getInstanceCreator()).append(";\n");
-            } else {
-                instBuilder.append("return;\n");
-            }
+            fillSimpleInstance(simpleInstance, createInst, instBuilder);
+        } else if (createInst) {
+            instBuilder.append(tabSymb).append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
+            instBuilder.append(getFieldAssigment(result, obj, classHierarchy, objectDepth));
+            instBuilder.append(tabSymb).append(tabSymb).append("return ").append(getInstName(clazz)).append(";\n");
         } else {
-            if (createInst) {
-                instBuilder.append(tabSymb).append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
-            }
-            List<Method> allMethods = getAllMethodsOfClass(classHierarchy);
-            for (Field field : getAllFieldsOfClass(classHierarchy)) {
-                int fieldModifiers = field.getModifiers();
-                boolean deniedModifier = isStatic(fieldModifiers) || isNative(fieldModifiers);
-                Object fieldValue = null;
-                if (deniedModifier || !allowedType(field.getType()) ||
-                    (!field.getType().isPrimitive() && (fieldValue = getFieldValue(field, obj)) == null)
-                ) {
-                    continue;
-                }
-                if (fieldValue == null) fieldValue = getFieldValue(field, obj);
-                InstanceCreateData instData = getInstanceCreateData(fieldValue, false, objectDepth);
-                if (instData == null) continue;
-                String fieldName = field.getName();
-                if (!isPublic(clazz.getModifiers()) || setterNotExists(fieldName, field, allMethods)) {
-                    if (isPublic(fieldModifiers) && !isFinal(fieldModifiers)) {
-                        instBuilder.append(getFieldAssignment(tabSymb, obj, fieldName, instData.getInstanceCreator()));
-                    } else {
-                        instBuilder .append(tabSymb).append(tabSymb)
-                                    .append(getFieldNotPublicAssignment(obj, fieldName, instData.getInstanceCreator(), commonMethodsClassName))
-                                    .append(";\n");
-                    }
-                } else {
-                    instBuilder.append(getFieldSetter(tabSymb, obj, fieldName, instData.getInstanceCreator()));
-                }
-                result.getDataProviderMethods().addAll(instData.getDataProviderMethods());
-            }
-            if (createInst) {
-                instBuilder.append(tabSymb).append(tabSymb).append("return ").append(getInstName(clazz)).append(";\n");
-            }
+            instBuilder.append(getFieldAssigment(result, obj, classHierarchy, objectDepth));
         }
         result.setInstanceCreator(instBuilder.toString());
         return result;
+    }
+
+    private void fillSimpleInstance(InstanceCreateData simpleInstance, boolean createInst, StringBuilder instBuilder) {
+        instBuilder.append(tabSymb).append(tabSymb).append("return");
+        if (createInst) {
+            instBuilder.append(" ").append(simpleInstance.getInstanceCreator()).append(";\n");
+        } else {
+            instBuilder.append(";\n");
+        }
+    }
+
+    private String getFieldAssigment(InstanceCreateData result, Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
+        Class<?> clazz = obj.getClass();
+        StringBuilder assignBuilder = new StringBuilder();
+        List<Method> allMethods = getAllMethodsOfClass(classHierarchy);
+        for (Field field : getAllFieldsOfClass(classHierarchy)) {
+            int fieldModifiers = field.getModifiers();
+            boolean deniedModifier = isStatic(fieldModifiers) || isNative(fieldModifiers);
+            Object fieldValue = null;
+            if (deniedModifier || !allowedType(field.getType()) ||
+                    (!field.getType().isPrimitive() && (fieldValue = getFieldValue(field, obj)) == null)
+                    ) {
+                continue;
+            }
+            if (fieldValue == null) fieldValue = getFieldValue(field, obj);
+            InstanceCreateData instData = getInstanceCreateData(fieldValue, false, objectDepth);
+            if (instData == null) continue;
+            String fieldName = field.getName();
+            if (!isPublic(clazz.getModifiers()) || setterNotExists(fieldName, field, allMethods)) {
+                if (isPublic(fieldModifiers) && !isFinal(fieldModifiers)) {
+                    assignBuilder.append(getFieldAssignment(tabSymb, obj, fieldName, instData.getInstanceCreator()));
+                } else {
+                    assignBuilder .append(tabSymb).append(tabSymb)
+                            .append(getFieldNotPublicAssignment(obj, fieldName, instData.getInstanceCreator(), commonMethodsClassName))
+                            .append(";\n");
+                }
+            } else {
+                assignBuilder.append(getFieldSetter(tabSymb, obj, fieldName, instData.getInstanceCreator()));
+            }
+            result.getDataProviderMethods().addAll(instData.getDataProviderMethods());
+        }
+        return assignBuilder.toString();
     }
 
     public InstanceCreateData getInstanceCreateData(Object obj, int objectDepth) throws Exception {

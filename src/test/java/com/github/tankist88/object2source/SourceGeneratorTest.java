@@ -10,6 +10,7 @@ import com.github.tankist88.object2source.test.PrivateStaticClassTest;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.security.Provider;
 import java.util.*;
 
 import static org.testng.Assert.*;
@@ -345,5 +346,17 @@ public class SourceGeneratorTest {
     public void fillMethodArrayTest() throws FillingNotSupportedException {
         SourceGenerator sg = new SourceGenerator();
         sg.createFillObjectMethod(new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    }
+
+    @Test
+    public void fillMethodPrimitiveTest() throws FillingNotSupportedException {
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createFillObjectMethod(5);
+        String generated = pr.getEndPoint().getMethodBody()
+                .replace(" ", "")
+                .replace("\n", "")
+                .replace("\r", "");
+        assertEquals(generated, "publicstaticvoidgetInteger_201181279(java.lang.Integer_integer)" +
+                "throwsException{return;}");
     }
 }
