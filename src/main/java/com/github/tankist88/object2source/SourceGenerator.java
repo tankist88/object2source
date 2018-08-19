@@ -294,7 +294,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         String typeName = extension != null ? extension.getActualType(obj) : actClass.getName();
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
-        String args = fillObj ? "(" + getClearedClassName(typeName) + " " + fieldName + ")" : "()";
+        String args = fillObj ? "(" + getClearedClassName(typeName) + " " + getInstName(clazz) + ")" : "()";
         String retType = fillObj ? "void" : getClearedClassName(typeName);
         String method = tabSymb + "public static " + retType + " " +
                         providerMethodName + args + " throws Exception {\n" + methodBody + tabSymb + "}\n";

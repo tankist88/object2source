@@ -334,9 +334,9 @@ public class SourceGeneratorTest {
     @Test
     public void fillMethodBaseTest() {
         SourceGenerator sg = new SourceGenerator();
-        ProviderResult pr = sg.createFillObjectMethod(new TestObj());
-        assertTrue(pr.getEndPoint().getMethodBody().contains("public static void getTestObj__1299165005(" +
-                "com.github.tankist88.object2source.TestObj testObj) throws Exception"));
+        ProviderResult pr = sg.createFillObjectMethod(new TestObj(123L, "toboty vpered!"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("public static void getTestObj__1815918072(" +
+                "com.github.tankist88.object2source.TestObj _testObj) throws Exception"));
         assertFalse(pr.getEndPoint().getMethodBody().contains("return"));
     }
 }
