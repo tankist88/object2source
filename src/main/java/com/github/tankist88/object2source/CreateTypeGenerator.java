@@ -2,7 +2,7 @@ package com.github.tankist88.object2source;
 
 import com.github.tankist88.object2source.dto.ProviderResult;
 
-public interface BaseTypeGenerator {
+public interface CreateTypeGenerator extends TypeGenerator {
     /**
      * Generate method source code for create instance of object
      * @param obj - object for source code generation

@@ -173,7 +173,7 @@ public class GenerationUtil {
     }
 
     public static String getDataProviderMethodName(String fieldName, int code) {
-        return "get" + replace(upFirst(fieldName), "$", "_") + "_" + replace(Integer.toString(code), "-", "_") + "()";
+        return "get" + replace(upFirst(fieldName), "$", "_") + "_" + replace(Integer.toString(code), "-", "_");
     }
 
     public static String createArrayElementString(String fieldName, String val, int index, String tabSymb) {

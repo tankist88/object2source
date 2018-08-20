@@ -2,7 +2,7 @@ package com.github.tankist88.object2source;
 
 import com.github.tankist88.object2source.extension.Extension;
 
-public interface TypeGenerator extends BaseTypeGenerator {
+public interface TypeGenerator {
     /**
      * Register extension for generation source code of specific object
      * @param extension - extension object to be registered

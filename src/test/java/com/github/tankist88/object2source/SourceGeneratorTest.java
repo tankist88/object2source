@@ -3,12 +3,14 @@ package com.github.tankist88.object2source;
 import com.github.tankist88.object2source.dto.InstanceCreateData;
 import com.github.tankist88.object2source.dto.ProviderInfo;
 import com.github.tankist88.object2source.dto.ProviderResult;
+import com.github.tankist88.object2source.exception.FillingNotSupportedException;
 import com.github.tankist88.object2source.test.Cyclic1;
 import com.github.tankist88.object2source.test.Cyclic2;
 import com.github.tankist88.object2source.test.PrivateStaticClassTest;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.security.Provider;
 import java.util.*;
 
 import static org.testng.Assert.*;
@@ -329,5 +331,32 @@ public class SourceGeneratorTest {
         assertTrue(pr.getEndPoint().getMethodBody().contains("java.util.ArrayList _arrayList = new java.util.ArrayList();"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("_arrayList.add(null);"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("return _arrayList;"));
+    }
+
+    @Test
+    public void fillMethodBaseTest() throws FillingNotSupportedException {
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createFillObjectMethod(new TestObj(123L, "toboty vpered!"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("public static void getTestObj__1815918072(" +
+                "com.github.tankist88.object2source.TestObj _testObj) throws Exception"));
+        assertFalse(pr.getEndPoint().getMethodBody().contains("return"));
+    }
+
+    @Test(expectedExceptions = FillingNotSupportedException.class)
+    public void fillMethodArrayTest() throws FillingNotSupportedException {
+        SourceGenerator sg = new SourceGenerator();
+        sg.createFillObjectMethod(new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    }
+
+    @Test
+    public void fillMethodPrimitiveTest() throws FillingNotSupportedException {
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createFillObjectMethod(5);
+        String generated = pr.getEndPoint().getMethodBody()
+                .replace(" ", "")
+                .replace("\n", "")
+                .replace("\r", "");
+        assertEquals(generated, "publicstaticvoidgetInteger_201181279(java.lang.Integer_integer)" +
+                "throwsException{return;}");
     }
 }

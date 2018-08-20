@@ -12,4 +12,9 @@ public abstract class AbstractEmbeddedExtension implements EmbeddedExtension {
     protected String getTabSymb() {
         return sourceGenerator.getTabSymb();
     }
+
+    @Override
+    public boolean isFillingSupported() {
+        return false;
+    }
 }
