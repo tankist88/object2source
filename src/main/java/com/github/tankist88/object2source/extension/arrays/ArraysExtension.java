@@ -46,7 +46,8 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
     }
 
     @Override
-    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
+    public String getMethodBody(Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
+        StringBuilder bb = new StringBuilder();
         String fieldName = "array";
         StringBuilder arrayValues = new StringBuilder();
         List<Integer> arraySizeList = new ArrayList<>();
@@ -171,5 +172,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
           .append("return ")
           .append(downFirst(fieldName))
           .append(";\n");
+
+        return bb.toString();
     }
 }

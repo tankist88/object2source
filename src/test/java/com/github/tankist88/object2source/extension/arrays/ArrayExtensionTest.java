@@ -72,10 +72,8 @@ public class ArrayExtensionTest {
     }
 
     @Test(dataProvider = "arraysDataProvider")
-    public void fillMethodBodyTest(Object array, String result) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        ae.fillMethodBody(sb, new HashSet<ProviderInfo>(), 20, array, false);
-        String generated = sb.toString()
+    public void getMethodBodyTest(Object array, String result) throws Exception {
+        String generated = ae.getMethodBody(new HashSet<ProviderInfo>(), 20, array, false)
                 .replace("\n","")
                 .replace("\r","")
                 .replace(" ", "");

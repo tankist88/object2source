@@ -8,12 +8,8 @@ import static com.github.tankist88.object2source.util.GenerationUtil.getClassHie
 
 public class EmptyMapExtension extends AbstractMapExtension {
     @Override
-    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
-        bb.append(getTabSymb())
-          .append(getTabSymb())
-          .append("return ")
-          .append("java.util.Collections.emptyMap()")
-          .append(";\n");
+    public String getMethodBody(Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) {
+        return getTabSymb() + getTabSymb() + "return java.util.Collections.emptyMap();\n";
     }
 
     @Override

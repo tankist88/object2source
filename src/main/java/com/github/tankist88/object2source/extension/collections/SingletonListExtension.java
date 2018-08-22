@@ -15,21 +15,12 @@ public class SingletonListExtension extends AbstractCollectionExtension {
     }
 
     @Override
-    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
+    public String getMethodBody(Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
         Object element = ((List) obj).get(0);
-
         InstanceCreateData instData = sourceGenerator.getInstanceCreateData(element, objectDepth);
-
         providers.addAll(instData.getDataProviderMethods());
-
-        bb.append(getTabSymb())
-          .append(getTabSymb())
-          .append("return ")
-          .append("java.util.Collections.singletonList")
-          .append("(")
-          .append(instData.getInstanceCreator())
-          .append(")")
-          .append(";\n");
+        return getTabSymb() + getTabSymb() + "return java.util.Collections.singletonList(" +
+                instData.getInstanceCreator() + ");\n";
     }
 
     @Override

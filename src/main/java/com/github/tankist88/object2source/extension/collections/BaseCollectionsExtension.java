@@ -19,12 +19,14 @@ public class BaseCollectionsExtension extends AbstractCollectionExtension {
     }
 
     @Override
-    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
+    public String getMethodBody(Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
+        StringBuilder bb = new StringBuilder();
         createAbstractCollectionInstance(obj, bb, providers, objectDepth);
         bb.append(getTabSymb())
           .append(getTabSymb())
           .append("return ")
           .append(getInstName(obj.getClass()))
           .append(";\n");
+        return bb.toString();
     }
 }

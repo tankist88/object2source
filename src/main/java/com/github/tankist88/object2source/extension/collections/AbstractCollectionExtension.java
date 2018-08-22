@@ -20,7 +20,7 @@ public abstract class AbstractCollectionExtension extends AbstractEmbeddedExtens
           .append(getTabSymb())
           .append(createInstStr(collectionClass, sourceGenerator.getCommonMethodsClassName()))
           .append("\n");
-        for(Object o : (Collection) obj) {
+        for (Object o : (Collection) obj) {
             InstanceCreateData data = sourceGenerator.getInstanceCreateData(o, objectDepth);
             sb.append(getTabSymb())
               .append(getTabSymb())

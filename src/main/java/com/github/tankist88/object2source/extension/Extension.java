@@ -20,14 +20,14 @@ public interface Extension {
 
     /**
      * Fill body of method which generate source code for create instance of object
-     * @param bb - method body builder
      * @param providers - Set which contains support methods
      * @param objectDepth - counter for control stack size
      * @param obj - object for which to be generated source code for create instance
-     * @param fillObj - true - object will be filled, new instance not to be created, false - create new instance of object class
+     * @param fillObj - true - object will be filled, new instance not to be created, false - create new instance
+     * @return string contains method body
      * @throws Exception - if we have an error
      */
-    void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception;
+    String getMethodBody(Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception;
 
     /**
      * Return an actual data type of class for method return signature

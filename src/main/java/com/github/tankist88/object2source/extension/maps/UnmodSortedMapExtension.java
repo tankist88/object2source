@@ -10,11 +10,10 @@ import static com.github.tankist88.object2source.util.GenerationUtil.*;
 
 public class UnmodSortedMapExtension extends AbstractMapExtension {
     @Override
-    public void fillMethodBody(StringBuilder bb, Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
+    public String getMethodBody(Set<ProviderInfo> providers, int objectDepth, Object obj, boolean fillObj) throws Exception {
         Class realType = ExtensionUtil.getCollectionWrappedType(obj, AbstractMap.class, getClassHierarchy(obj.getClass()));
-
+        StringBuilder bb = new StringBuilder();
         createAbstractMapInstance(obj, bb, providers, realType, objectDepth);
-
         bb.append(getTabSymb())
           .append(getTabSymb())
           .append("return ")
@@ -23,6 +22,7 @@ public class UnmodSortedMapExtension extends AbstractMapExtension {
           .append(getInstName(realType))
           .append(")")
           .append(";\n");
+        return bb.toString();
     }
 
     @Override

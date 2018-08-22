@@ -305,10 +305,10 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
                 );
             }
             typeName = extension.getActualType(obj);
-            extension.fillMethodBody(bodyBuilder, providers, nextObjectDepth, obj, fillObj);
+            bodyBuilder.append(extension.getMethodBody(providers, nextObjectDepth, obj, fillObj));
         } else {
             typeName = actClass.getName();
-            fillMethodBody(obj, bodyBuilder, providers, getClassHierarchy(clazz), nextObjectDepth, fillObj);
+            bodyBuilder.append(getMethodBody(obj, providers, getClassHierarchy(clazz), nextObjectDepth, fillObj));
         }
         String args;
         String retType;
@@ -346,10 +346,10 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         return false;
     }
 
-    private void fillMethodBody(Object obj, StringBuilder bb, Set<ProviderInfo> result, List<Class> classHierarchy, int objectDepth, boolean fillObj) throws Exception {
+    private String getMethodBody(Object obj, Set<ProviderInfo> result, List<Class> classHierarchy, int objectDepth, boolean fillObj) throws Exception {
         InstanceCreateData objGenerateResult = generateObjInstance(obj, classHierarchy, objectDepth, !fillObj);
-        bb.append(objGenerateResult.getInstanceCreator());
         result.addAll(objGenerateResult.getDataProviderMethods());
+        return objGenerateResult.getInstanceCreator();
     }
 
     @Override

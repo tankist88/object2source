@@ -10,11 +10,9 @@ import com.github.tankist88.object2source.test.PrivateStaticClassTest;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
-import java.security.Provider;
 import java.util.*;
 
 import static org.testng.Assert.*;
-import static org.testng.Assert.assertTrue;
 
 public class SourceGeneratorTest {
     private TestObj createTestObj() {
