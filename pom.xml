@@ -10,7 +10,7 @@
 
     <groupId>com.github.tankist88</groupId>
     <artifactId>object2source</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>object2source</name>
