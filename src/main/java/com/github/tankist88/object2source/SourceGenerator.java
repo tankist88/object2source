@@ -114,10 +114,10 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
             fillSimpleInstance(simpleInstance, createInst, instBuilder);
         } else if (createInst) {
             instBuilder.append(tabSymb).append(tabSymb).append(createInstStr(clazz, commonMethodsClassName)).append("\n");
-            instBuilder.append(getFieldAssigment(result, obj, classHierarchy, objectDepth));
+            instBuilder.append(getFieldAssigment(result, obj, classHierarchy, objectDepth, createInst));
             instBuilder.append(tabSymb).append(tabSymb).append("return ").append(getInstName(clazz)).append(";\n");
         } else {
-            instBuilder.append(getFieldAssigment(result, obj, classHierarchy, objectDepth));
+            instBuilder.append(getFieldAssigment(result, obj, classHierarchy, objectDepth, createInst));
         }
         result.setInstanceCreator(instBuilder.toString());
         return result;
@@ -132,7 +132,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         }
     }
 
-    private String getFieldAssigment(InstanceCreateData result, Object obj, List<Class> classHierarchy, int objectDepth) throws Exception {
+    private String getFieldAssigment(InstanceCreateData result, Object obj, List<Class> classHierarchy, int objectDepth, boolean createInst) throws Exception {
         Class<?> clazz = obj.getClass();
         StringBuilder assignBuilder = new StringBuilder();
         List<Method> allMethods = getAllMethodsOfClass(classHierarchy);
@@ -141,8 +141,8 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
             boolean deniedModifier = isStatic(fieldModifiers) || isNative(fieldModifiers);
             Object fieldValue = null;
             if (deniedModifier || !allowedType(field.getType()) ||
-                    (!field.getType().isPrimitive() && (fieldValue = getFieldValue(field, obj)) == null)
-                    ) {
+                    (!field.getType().isPrimitive() && createInst && (fieldValue = getFieldValue(field, obj)) == null)
+            ) {
                 continue;
             }
             if (fieldValue == null) fieldValue = getFieldValue(field, obj);
@@ -310,15 +310,8 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
             typeName = actClass.getName();
             bodyBuilder.append(getMethodBody(obj, providers, getClassHierarchy(clazz), nextObjectDepth, fillObj));
         }
-        String args;
-        String retType;
-        if (fillObj) {
-            args = "(" + getClearedClassName(typeName) + " " + getInstName(clazz) + ")";
-            retType = "void";
-        } else {
-            args = "()";
-            retType = getClearedClassName(typeName);
-        }
+        String args = fillObj ? "(" + getClearedClassName(typeName) + " " + getInstName(clazz) + ")" : "()";
+        String retType = fillObj ? "void" : getClearedClassName(typeName);
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
         String method = tabSymb + "public static " + retType + " " +
