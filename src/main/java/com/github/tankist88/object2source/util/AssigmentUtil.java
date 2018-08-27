@@ -18,6 +18,8 @@ public class AssigmentUtil {
     private static final String COMMON_METHODS_SPLITTER = "-----------------";
     private static final String TAB_PLACEHOLDER = "<tab>";
 
+    public static final String VAR_NAME_PLACEHOLDER = "<var_name>";
+
     public static String getCalendarInstanceMethod(String timeZoneId, String mTime, String className) {
         String classAppend = className != null ? className + "." : "";
         return classAppend + "getCalendarInstance(<tzId>, <mTime>)"

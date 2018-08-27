@@ -338,6 +338,7 @@ public class SourceGeneratorTest {
         assertTrue(pr.getEndPoint().getMethodBody().contains("public static void getTestObj__1815918072(" +
                 "com.github.tankist88.object2source.TestObj _testObj) throws Exception"));
         assertFalse(pr.getEndPoint().getMethodBody().contains("return"));
+        assertEquals(pr.getEndPoint().getMethodName(), "getTestObj__1815918072(<var_name>)");
     }
 
     @Test(expectedExceptions = FillingNotSupportedException.class)

@@ -310,21 +310,15 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
             typeName = actClass.getName();
             bodyBuilder.append(getMethodBody(obj, providers, getClassHierarchy(clazz), nextObjectDepth, fillObj));
         }
-        String args;
-        String retType;
-        if (fillObj) {
-            args = "(" + getClearedClassName(typeName) + " " + getInstName(clazz) + ")";
-            retType = "void";
-        } else {
-            args = "()";
-            retType = getClearedClassName(typeName);
-        }
+        String args = fillObj ? "(" + getClearedClassName(typeName) + " " + getInstName(clazz) + ")" : "()";
+        String stubArgs = fillObj ? "(" + VAR_NAME_PLACEHOLDER + ")" : args;
+        String retType = fillObj ? "void" : getClearedClassName(typeName);
         String methodBody = bodyBuilder.toString();
         String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
         String method = tabSymb + "public static " + retType + " " +
                         providerMethodName + args + " throws Exception {\n" + methodBody + tabSymb + "}\n";
         ProviderResult result = new ProviderResult();
-        result.setEndPoint(new ProviderInfo(providerMethodName + args, method));
+        result.setEndPoint(new ProviderInfo(providerMethodName + stubArgs, method));
         result.setProviders(providers);
         result.getProviders().add(result.getEndPoint());
         if (commonMethodsClassName == null) {
