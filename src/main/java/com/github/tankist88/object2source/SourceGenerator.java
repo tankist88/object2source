@@ -24,6 +24,7 @@ import java.util.Set;
 import static com.github.tankist88.object2source.util.AssigmentUtil.*;
 import static com.github.tankist88.object2source.util.GenerationUtil.*;
 import static java.lang.reflect.Modifier.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     static final int DEFAULT_MAX_DEPTH = 10;
@@ -315,7 +316,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         String method = tabSymb + "public static " + retType + " " +
                         providerMethodName + args + " throws Exception {\n" + methodBody + tabSymb + "}\n";
         ProviderResult result = new ProviderResult();
-        result.setEndPoint(new ProviderInfo(providerMethodName + stubArgs, method));
+        result.setEndPoint(new ProviderInfo(providerMethodName + stubArgs, method, isBlank(methodBody)));
         result.setProviders(providers);
         result.getProviders().add(result.getEndPoint());
         if (commonMethodsClassName == null) {

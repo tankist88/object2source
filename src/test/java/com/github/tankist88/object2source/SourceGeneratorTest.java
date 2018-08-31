@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class SourceGeneratorTest {
     private TestObj createTestObj() {
@@ -124,6 +125,7 @@ public class SourceGeneratorTest {
     public void testSingletonList() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(Collections.singletonList(1.5d));
+        assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("Collections.singletonList(1.5d)"));
     }
 
@@ -137,6 +139,7 @@ public class SourceGeneratorTest {
         array[4] = '%';
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(array);
+        assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("char[] array = new char[5];"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("array[0] = '\\\\';"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("array[1] = '\\t';"));
@@ -149,6 +152,7 @@ public class SourceGeneratorTest {
     public void notPublicClassTest() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(PrivateStaticClassTest.getTestClass());
+        assertFalse(pr.getEndPoint().isEmpty());
         for(ProviderInfo pi : pr.getProviders()) {
             if(pi.getMethodName().startsWith("getNotPublic")) {
                 assertTrue(pi.getMethodBody().contains("" +
@@ -197,7 +201,6 @@ public class SourceGeneratorTest {
         c2.setId(123);
         c1.setField(c2);
         c1.setName("ggg");
-
         SourceGenerator sg1 = new SourceGenerator();
         sg1.createDataProviderMethod(c1);
     }
@@ -210,11 +213,10 @@ public class SourceGeneratorTest {
         c2.setId(123);
         c1.setField(c2);
         c1.setName("ggg");
-
-        SourceGenerator sg2 = new SourceGenerator();
-        sg2.setExceptionWhenMaxODepth(false);
-        ProviderResult pr2 = sg2.createDataProviderMethod(c1);
-        assertNotEquals(pr2, null);
+        SourceGenerator sg = new SourceGenerator();
+        sg.setExceptionWhenMaxODepth(false);
+        ProviderResult pr = sg.createDataProviderMethod(c1);
+        assertNotEquals(pr, null);
     }
 
     @Test
@@ -222,6 +224,7 @@ public class SourceGeneratorTest {
         TestObj tObj = new TestObj();
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(tObj);
+        assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("notPublicAssignment(_testObj, \"finalTest\", \"ggg\");"));
     }
 
@@ -229,6 +232,7 @@ public class SourceGeneratorTest {
     public void timeZoneTest() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(TimeZone.getTimeZone(TimeZone.getAvailableIDs()[0]));
+        assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("return (sun.util.calendar.ZoneInfo) java.util.TimeZone.getTimeZone(\"Africa/Abidjan\");"));
     }
 
@@ -236,6 +240,7 @@ public class SourceGeneratorTest {
     public void byteTest() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod((byte) 1);
+        assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("return (byte) 1;"));
     }
 
@@ -243,6 +248,7 @@ public class SourceGeneratorTest {
     public void shortTest() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod((short) 1);
+        assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("return (short) 1;"));
     }
 
@@ -258,7 +264,7 @@ public class SourceGeneratorTest {
         }
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(array);
-
+        assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("int[][][] array = new int[4][3][2];"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("array[0] = getArray_868009510();"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("array[1] = getArray_868009510();"));
@@ -278,7 +284,7 @@ public class SourceGeneratorTest {
         }
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(array);
-
+        assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("java.math.BigDecimal[][][] array = new java.math.BigDecimal[4][3][2];"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("array[0] = getArray__1748287722();"));
         assertTrue(pr.getEndPoint().getMethodBody().contains("array[1] = getArray__1748287722();"));
@@ -298,6 +304,7 @@ public class SourceGeneratorTest {
         }
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(array);
+        assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("java.lang.Object[][][] array = (java.lang.Object[][][]) " +
                 "java.lang.reflect.Array.newInstance(" +
                 "Class.forName(\"com.github.tankist88.object2source.SourceGeneratorTest$PrivateClassForArray\"), 4, 3, 2);"));
@@ -322,6 +329,7 @@ public class SourceGeneratorTest {
     public void nullCollectionTest() {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createDataProviderMethod(Arrays.asList(null, null));
+        assertFalse(pr.getEndPoint().isEmpty());
         assertNotNull(pr);
         assertNotNull(pr.getEndPoint());
         assertTrue(pr.getProviders().size() > 1);
@@ -335,6 +343,7 @@ public class SourceGeneratorTest {
     public void fillMethodBaseTest() throws FillingNotSupportedException {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createFillObjectMethod(new TestObj(123L, "toboty vpered!"));
+        assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("public static void fillTestObj__1815918072(" +
                 "com.github.tankist88.object2source.TestObj _testObj) throws Exception"));
         assertFalse(pr.getEndPoint().getMethodBody().contains("return"));
@@ -351,11 +360,35 @@ public class SourceGeneratorTest {
     public void fillMethodPrimitiveTest() throws FillingNotSupportedException {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createFillObjectMethod(5);
+        assertFalse(pr.getEndPoint().isEmpty());
         String generated = pr.getEndPoint().getMethodBody()
                 .replace(" ", "")
                 .replace("\n", "")
-                .replace("\r", "");
+                .replace("\r", "")
+                .replace("\t", "");
         assertEquals(generated, "publicstaticvoidfillInteger_201181279(java.lang.Integer_integer)" +
                 "throwsException{return;}");
+    }
+
+    @Test
+    public void fillMethodUnsupportedTypeTest() throws FillingNotSupportedException {
+        SourceGenerator sg = new SourceGenerator();
+        sg.getAllowedPackages().add("java.lang");
+        assertNull(sg.createFillObjectMethod(new TestObj()));
+    }
+
+    @Test
+    public void fillMethodUnsupportedMembersTest() throws FillingNotSupportedException {
+        SourceGenerator sg = new SourceGenerator();
+        sg.getAllowedPackages().add("com.github.tankist88.object2source.test.Cyclic1");
+        ProviderResult pr = sg.createFillObjectMethod(new Cyclic1());
+        assertTrue(pr.getEndPoint().isEmpty());
+        String generated = pr.getEndPoint().getMethodBody()
+                .replace(" ", "")
+                .replace("\n", "")
+                .replace("\r", "")
+                .replace("\t", "");
+        assertEquals(generated, "publicstaticvoidfillCyclic1_0" +
+                "(com.github.tankist88.object2source.test.Cyclic1_cyclic1)throwsException{}");
     }
 }

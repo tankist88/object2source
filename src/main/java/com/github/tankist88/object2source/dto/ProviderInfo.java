@@ -6,13 +6,15 @@ import java.util.Objects;
 public class ProviderInfo implements Serializable {
     private String methodName;
     private String methodBody;
+    private boolean empty;
 
     public ProviderInfo() {
     }
 
-    public ProviderInfo(String methodName, String methodBody) {
+    public ProviderInfo(String methodName, String methodBody, boolean empty) {
         this.methodName = methodName;
         this.methodBody = methodBody;
+        this.empty = empty;
     }
 
     public String getMethodName() {
@@ -29,6 +31,10 @@ public class ProviderInfo implements Serializable {
 
     public void setMethodBody(String methodBody) {
         this.methodBody = methodBody;
+    }
+
+    public boolean isEmpty() {
+        return empty;
     }
 
     @Override
