@@ -34,7 +34,6 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     private Set<ProviderInfo> commonMethods;
     private String tabSymb;
     private boolean exceptionWhenMaxODepth;
-
     private ArrayList<Extension> extensions;
     private Set<String> extensionClasses;
 
@@ -76,28 +75,40 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         registerExtension(new ArraysExtension());
     }
 
-    public boolean isExceptionWhenMaxODepth() {
-        return exceptionWhenMaxODepth;
+    @Override
+    public ProviderResult createDataProviderMethod(Object obj) {
+        try {
+            return createDataProviderMethod(obj, false);
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
-    public void setExceptionWhenMaxODepth(boolean exceptionWhenMaxODepth) {
-        this.exceptionWhenMaxODepth = exceptionWhenMaxODepth;
+    @Override
+    public ProviderResult createFillObjectMethod(Object obj) throws FillingNotSupportedException {
+        return createDataProviderMethod(obj, true);
     }
 
-    public String getCommonMethodsClassName() {
-        return commonMethodsClassName;
+    @Override
+    public void registerExtension(Extension extension) {
+        if (extension instanceof EmbeddedExtension) {
+            ((EmbeddedExtension) extension).setSourceGenerator(this);
+        }
+        if (!extensionClasses.contains(extension.getClass().getName())) {
+            extensions.add(0, extension);
+            extensionClasses.add(extension.getClass().getName());
+        }
     }
 
-    public String getTabSymb() {
-        return tabSymb;
-    }
-
-    public int getMaxObjectDepth() {
-        return maxObjectDepth;
-    }
-
-    public void setMaxObjectDepth(int maxObjectDepth) {
-        this.maxObjectDepth = maxObjectDepth;
+    @Override
+    public Extension findExtension(Class clazz) {
+        for (Extension ext : extensions) {
+            if (ext.isTypeSupported(clazz) && ext.isFillingSupported()) return ext;
+        }
+        for (Extension ext : extensions) {
+            if (ext.isTypeSupported(clazz)) return ext;
+        }
+        return null;
     }
 
     private InstanceCreateData generateObjInstance(Object obj, List<Class> classHierarchy, int objectDepth, boolean createInst) throws Exception {
@@ -252,20 +263,6 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         return result;
     }
 
-    @Override
-    public ProviderResult createDataProviderMethod(Object obj) {
-        try {
-            return createDataProviderMethod(obj, false);
-        } catch (Exception ex) {
-            throw new IllegalStateException(ex);
-        }
-    }
-
-    @Override
-    public ProviderResult createFillObjectMethod(Object obj) throws FillingNotSupportedException {
-        return createDataProviderMethod(obj, true);
-    }
-
     private ProviderResult createDataProviderMethod(Object obj, boolean fillObj) throws FillingNotSupportedException {
         if (obj == null || !allowedType(obj.getClass())) return null;
         boolean anonymousClass = getLastClassShort(obj.getClass().getName()).matches("\\d+");
@@ -314,7 +311,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         String stubArgs = fillObj ? "(" + VAR_NAME_PLACEHOLDER + ")" : args;
         String retType = fillObj ? "void" : getClearedClassName(typeName);
         String methodBody = bodyBuilder.toString();
-        String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode());
+        String providerMethodName = getDataProviderMethodName(fieldName, methodBody.hashCode(), fillObj);
         String method = tabSymb + "public static " + retType + " " +
                         providerMethodName + args + " throws Exception {\n" + methodBody + tabSymb + "}\n";
         ProviderResult result = new ProviderResult();
@@ -333,7 +330,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     }
 
     boolean allowedType(Class<?> clazz) {
-        if(allowedPackages == null || allowedPackages.size() == 0 || clazz.isPrimitive()) return true;
+        if (allowedPackages == null || allowedPackages.size() == 0 || clazz.isPrimitive()) return true;
         for (String p : allowedPackages) {
             if (clazz.getName().startsWith(p)) return true;
         }
@@ -346,25 +343,27 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         return objGenerateResult.getInstanceCreator();
     }
 
-    @Override
-    public void registerExtension(Extension extension) {
-        if (extension instanceof EmbeddedExtension) {
-            ((EmbeddedExtension) extension).setSourceGenerator(this);
-        }
-        if (!extensionClasses.contains(extension.getClass().getName())) {
-            extensions.add(0, extension);
-            extensionClasses.add(extension.getClass().getName());
-        }
+    public boolean isExceptionWhenMaxODepth() {
+        return exceptionWhenMaxODepth;
     }
 
-    @Override
-    public Extension findExtension(Class clazz) {
-        for (Extension ext : extensions) {
-            if (ext.isTypeSupported(clazz) && ext.isFillingSupported()) return ext;
-        }
-        for (Extension ext : extensions) {
-            if (ext.isTypeSupported(clazz)) return ext;
-        }
-        return null;
+    public void setExceptionWhenMaxODepth(boolean exceptionWhenMaxODepth) {
+        this.exceptionWhenMaxODepth = exceptionWhenMaxODepth;
+    }
+
+    public String getCommonMethodsClassName() {
+        return commonMethodsClassName;
+    }
+
+    public String getTabSymb() {
+        return tabSymb;
+    }
+
+    public int getMaxObjectDepth() {
+        return maxObjectDepth;
+    }
+
+    public void setMaxObjectDepth(int maxObjectDepth) {
+        this.maxObjectDepth = maxObjectDepth;
     }
 }

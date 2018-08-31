@@ -335,10 +335,10 @@ public class SourceGeneratorTest {
     public void fillMethodBaseTest() throws FillingNotSupportedException {
         SourceGenerator sg = new SourceGenerator();
         ProviderResult pr = sg.createFillObjectMethod(new TestObj(123L, "toboty vpered!"));
-        assertTrue(pr.getEndPoint().getMethodBody().contains("public static void getTestObj__1815918072(" +
+        assertTrue(pr.getEndPoint().getMethodBody().contains("public static void fillTestObj__1815918072(" +
                 "com.github.tankist88.object2source.TestObj _testObj) throws Exception"));
         assertFalse(pr.getEndPoint().getMethodBody().contains("return"));
-        assertEquals(pr.getEndPoint().getMethodName(), "getTestObj__1815918072(<var_name>)");
+        assertEquals(pr.getEndPoint().getMethodName(), "fillTestObj__1815918072(<var_name>)");
     }
 
     @Test(expectedExceptions = FillingNotSupportedException.class)
@@ -355,7 +355,7 @@ public class SourceGeneratorTest {
                 .replace(" ", "")
                 .replace("\n", "")
                 .replace("\r", "");
-        assertEquals(generated, "publicstaticvoidgetInteger_201181279(java.lang.Integer_integer)" +
+        assertEquals(generated, "publicstaticvoidfillInteger_201181279(java.lang.Integer_integer)" +
                 "throwsException{return;}");
     }
 }

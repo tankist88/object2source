@@ -12,6 +12,8 @@ import static org.apache.commons.lang3.StringUtils.replaceEach;
 public class GenerationUtil {
     public static final String ESCAPE_STRING_REGEX = "([\"\\\\])";
     public static final String ESCAPE_STRING_REPLACE = "\\\\$1";
+    public static final String DATA_PROVIDER_METHOD_START = "get";
+    public static final String FILLING_METHOD_START = "fill";
 
     public static Object getFieldValue(Field field, Object fieldOwner) throws IllegalAccessException {
         boolean currentAccessible = field.isAccessible();
@@ -172,8 +174,11 @@ public class GenerationUtil {
         return instNameBuilder.toString();
     }
 
-    public static String getDataProviderMethodName(String fieldName, int code) {
-        return "get" + replace(upFirst(fieldName), "$", "_") + "_" + replace(Integer.toString(code), "-", "_");
+    public static String getDataProviderMethodName(String fieldName, int code, boolean fillObj) {
+        return  (fillObj ? FILLING_METHOD_START : DATA_PROVIDER_METHOD_START) +
+                replace(upFirst(fieldName), "$", "_") +
+                "_" +
+                replace(Integer.toString(code), "-", "_");
     }
 
     public static String createArrayElementString(String fieldName, String val, int index, String tabSymb) {
@@ -182,7 +187,7 @@ public class GenerationUtil {
 
     public static List<Field> getAllFieldsOfClass(List<Class> classHierarchy) {
         List<Field> allFields = new ArrayList<>();
-        for(Class c : classHierarchy) {
+        for (Class c : classHierarchy) {
             allFields.addAll(Arrays.asList(c.getDeclaredFields()));
         }
         return allFields;
@@ -190,7 +195,7 @@ public class GenerationUtil {
 
     public static List<Method> getAllMethodsOfClass(List<Class> classHierarchy) {
         List<Method> allMethods = new ArrayList<>();
-        for(Class c : classHierarchy) {
+        for (Class c : classHierarchy) {
             allMethods.addAll(Arrays.asList(c.getDeclaredMethods()));
         }
         return allMethods;
@@ -271,13 +276,13 @@ public class GenerationUtil {
     }
 
     public static Method getMethodByNameAndArgs(List<Class> classHierarchy, String methodName, Class<?>... args) throws NoSuchMethodException {
-        for(Method m : getAllMethodsOfClass(classHierarchy)) {
-            if(m.getName().equals(methodName)) {
+        for (Method m : getAllMethodsOfClass(classHierarchy)) {
+            if (m.getName().equals(methodName)) {
                 Class[] pTypes = m.getParameterTypes();
-                if(pTypes.length != args.length) continue;
-                if(pTypes.length == 0) return m;
+                if (pTypes.length != args.length) continue;
+                if (pTypes.length == 0) return m;
                 int countEquals = 0;
-                for(int i = 0; i < pTypes.length; i++) {
+                for (int i = 0; i < pTypes.length; i++) {
                     Class argType = args[i].isPrimitive() ? convertPrimitiveToWrapper(args[i]) : args[i];
                     Class decType = pTypes[i].isPrimitive() ? convertPrimitiveToWrapper(pTypes[i]) : pTypes[i];
 
@@ -286,11 +291,11 @@ public class GenerationUtil {
                     argTypeHierarchy.add(Object.class.getName());
                     argTypeHierarchy.addAll(getInterfacesHierarchyStr(argType));
 
-                    if(argTypeHierarchy.contains(decType.getName())) {
+                    if (argTypeHierarchy.contains(decType.getName())) {
                         countEquals++;
                     }
                 }
-                if(countEquals == pTypes.length) return m;
+                if (countEquals == pTypes.length) return m;
             }
         }
         throw new NoSuchMethodException("Method " + methodName + " does not exists");
