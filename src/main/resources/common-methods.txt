@@ -8,23 +8,73 @@ getCalendarInstance(<tzId>, <mTime>)
 <tab><tab>return (java.util.GregorianCalendar) cal;
 <tab>}
 -----------------
-getClassWithMethodsHierarchy(<clazz>)
+getClassHierarchy(<clazz>)
 -----------------
-<tab>public static java.util.List<Class> getClassWithMethodsHierarchy(Class<?> clazz){
-<tab><tab>java.util.List<Class> classesWithParent = new java.util.ArrayList<>();
-<tab><tab>Class<?> currentClass = clazz;
-<tab><tab>while (currentClass.getDeclaredFields().length > 0) {
-<tab><tab><tab>classesWithParent.add(currentClass);
-<tab><tab><tab>currentClass = currentClass.getSuperclass();
+<tab>public static java.util.List<Class> getClassHierarchy(Class clazz){
+<tab><tab>java.util.List<Class> classes = new java.util.ArrayList<>();
+<tab><tab>for (Class c : hierarchy(clazz)) {
+<tab><tab><tab>if(c.equals(Object.class)) continue;
+<tab><tab><tab>classes.add(c);
 <tab><tab>}
-<tab><tab>return classesWithParent;
+<tab><tab>return classes;
+<tab>}
+-----------------
+hierarchy(<type>)
+-----------------
+<tab>public static Iterable<Class<?>> hierarchy(final Class<?> type) {
+<tab><tab>final Iterable<Class<?>> classes = new Iterable<Class<?>>() {
+<tab><tab><tab>@Override
+<tab><tab><tab>public java.util.Iterator<Class<?>> iterator() {
+<tab><tab><tab><tab>final MutableObject<Class<?>> next = new MutableObject<Class<?>>(type);
+<tab><tab><tab><tab>return new java.util.Iterator<Class<?>>() {
+<tab><tab><tab><tab><tab>@Override
+<tab><tab><tab><tab><tab>public boolean hasNext() {
+<tab><tab><tab><tab><tab><tab>return next.getValue() != null;
+<tab><tab><tab><tab><tab>}
+<tab><tab><tab><tab><tab>@Override
+<tab><tab><tab><tab><tab>public Class<?> next() {
+<tab><tab><tab><tab><tab><tab>final Class<?> result = next.getValue();
+<tab><tab><tab><tab><tab><tab>next.setValue(result.getSuperclass());
+<tab><tab><tab><tab><tab><tab>return result;
+<tab><tab><tab><tab><tab>}
+<tab><tab><tab><tab><tab>@Override
+<tab><tab><tab><tab><tab>public void remove() {
+<tab><tab><tab><tab><tab><tab>throw new UnsupportedOperationException();
+<tab><tab><tab><tab><tab>}
+<tab><tab><tab><tab>};
+<tab><tab><tab>}
+<tab><tab>};
+<tab><tab>return classes;
+<tab>}
+<tab>private static class MutableObject<T> {
+<tab><tab>private T value;
+<tab><tab>public MutableObject(T value) {
+<tab><tab><tab>this.value = value;
+<tab><tab>}
+<tab><tab>public T getValue() {
+<tab><tab><tab>return value;
+<tab><tab>}
+<tab><tab>public void setValue(T value) {
+<tab><tab><tab>this.value = value;
+<tab><tab>}
+<tab><tab>@Override
+<tab><tab>public boolean equals(Object o) {
+<tab><tab><tab>if (this == o) return true;
+<tab><tab><tab>if (!(o instanceof MutableObject)) return false;
+<tab><tab><tab>MutableObject<?> that = (MutableObject<?>) o;
+<tab><tab><tab>return java.util.Objects.equals(getValue(), that.getValue());
+<tab><tab>}
+<tab><tab>@Override
+<tab><tab>public int hashCode() {
+<tab><tab><tab>return java.util.Objects.hash(getValue());
+<tab><tab>}
 <tab>}
 -----------------
 getAllFieldsOfObject(<obj>)
 -----------------
 <tab>public static java.util.List<java.lang.reflect.Field> getAllFieldsOfObject(Object obj) {
 <tab><tab>java.util.List<java.lang.reflect.Field> allFields = new java.util.ArrayList<>();
-<tab><tab>for(Class c : getClassWithMethodsHierarchy(obj.getClass())) {
+<tab><tab>for(Class c : getClassHierarchy(obj.getClass())) {
 <tab><tab><tab>allFields.addAll(java.util.Arrays.asList(c.getDeclaredFields()));
 <tab><tab>}
 <tab><tab>return allFields;
