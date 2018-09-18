@@ -17,7 +17,7 @@ public class PrivateStaticClassTest {
             this.id = id;
             this.name = name;
             this.notPublic = new NotPublic();
-            this.examplePackagePrivateList = new ExamplePackagePrivateList<>();
+            this.examplePackagePrivateList = new ExamplePackagePrivateList<Integer>();
             this.examplePackagePrivateList.add(123);
             this.examplePackagePrivateList.add(321);
             this.notPublicArray = new NotPublic[10];

@@ -50,7 +50,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
         StringBuilder bb = new StringBuilder();
         String fieldName = "array";
         StringBuilder arrayValues = new StringBuilder();
-        List<Integer> arraySizeList = new ArrayList<>();
+        List<Integer> arraySizeList = new ArrayList<Integer>();
         if (obj instanceof boolean[]) {
             boolean[] arr = ((boolean[]) obj);
             arraySizeList.add(arr.length);

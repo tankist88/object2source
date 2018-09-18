@@ -18,7 +18,7 @@ public class ProviderInfoTest {
         o1.setMethodName(name);
         ProviderInfo o2 = new ProviderInfo(name, body, false);
         assertEquals(o1.hashCode(), o2.hashCode());
-        Set<ProviderInfo> hashSet = new HashSet<>();
+        Set<ProviderInfo> hashSet = new HashSet<ProviderInfo>();
         hashSet.add(o1);
         assertFalse(hashSet.add(o2));
     }

@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.testng.Assert.*;
-import static org.testng.Assert.assertEquals;
 
 public class SourceGeneratorTest {
     private TestObj createTestObj() {
@@ -38,7 +37,7 @@ public class SourceGeneratorTest {
         testObj.unmodifMap = Collections.unmodifiableMap(new HashMap<String, TestObj>());
         testObj.unmodifSortedMap = Collections.unmodifiableSortedMap(new TreeMap<String, TestObj>());
 
-        testObj.arrayListOfArrayList = new ArrayList<>();
+        testObj.arrayListOfArrayList = new ArrayList<List<Integer>>();
         testObj.arrayListOfArrayList.add(Arrays.asList(1,2,3,4,5,6,7));
         testObj.arrayListOfArrayList.add(Arrays.asList(1,2,3));
         testObj.arrayListOfArrayList.add(Arrays.asList(1,2));
@@ -117,7 +116,7 @@ public class SourceGeneratorTest {
         SourceGenerator sg;
         sg = new SourceGenerator();
         assertEquals(sg.getAllowedPackages().size(), 0);
-        sg = new SourceGenerator("    ", new HashSet<>(Arrays.asList("a.b","c.d")));
+        sg = new SourceGenerator("    ", new HashSet<String>(Arrays.asList("a.b","c.d")));
         assertEquals(sg.getAllowedPackages().size(), 2);
     }
 

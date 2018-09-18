@@ -14,7 +14,7 @@ public class ProviderResultTest {
     @Test(dataProvider = "hashCodeEqualsDataProvider")
     public void hashCodeEqualsTest(ProviderResult r1, ProviderResult r2) {
         assertEquals(r1.hashCode(), r2.hashCode());
-        Set<ProviderResult> hashSet = new HashSet<>();
+        Set<ProviderResult> hashSet = new HashSet<ProviderResult>();
         hashSet.add(r1);
         assertFalse(hashSet.add(r2));
     }
@@ -36,7 +36,7 @@ public class ProviderResultTest {
     @Test(dataProvider = "hashCodeNotEqualsDataProvider")
     public void hashCodeNotEqualsTest(ProviderResult r1, ProviderResult r2) {
         assertNotEquals(r1.hashCode(), r2.hashCode());
-        Set<ProviderResult> hashSet = new HashSet<>();
+        Set<ProviderResult> hashSet = new HashSet<ProviderResult>();
         hashSet.add(r1);
         assertTrue(hashSet.add(r2));
     }

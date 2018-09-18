@@ -57,8 +57,8 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         this.exceptionWhenMaxODepth = exceptionWhenMaxODepth;
         this.commonMethodsClassName = commonMethodsClassName;
         this.commonMethods = getCommonMethods(tabSymb);
-        this.extensions =  new ArrayList<>();
-        this.extensionClasses = new HashSet<>();
+        this.extensions =  new ArrayList<Extension>();
+        this.extensionClasses = new HashSet<String>();
         initEmbeddedExtensions();
     }
 
@@ -285,7 +285,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     }
 
     private ProviderResult createDataProviderMethod(Object obj, String fieldName, boolean fillObj, int objectDepth) throws Exception {
-        Set<ProviderInfo> providers = new HashSet<>();
+        Set<ProviderInfo> providers = new HashSet<ProviderInfo>();
 
         int nextObjectDepth = objectDepth - 1;
 
@@ -326,7 +326,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     }
 
     public Set<String> getAllowedPackages() {
-        if (allowedPackages == null) allowedPackages = new HashSet<>();
+        if (allowedPackages == null) allowedPackages = new HashSet<String>();
         return allowedPackages;
     }
 
