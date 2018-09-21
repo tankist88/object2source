@@ -1,7 +1,6 @@
 package com.github.tankist88.object2source.dto;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 public class ProviderInfo implements Serializable {
     private String methodName;
@@ -40,14 +39,16 @@ public class ProviderInfo implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ProviderInfo)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         ProviderInfo that = (ProviderInfo) o;
-        return Objects.equals(getMethodName(), that.getMethodName()) &&
-                Objects.equals(getMethodBody(), that.getMethodBody());
+        if (methodName != null ? !methodName.equals(that.methodName) : that.methodName != null) return false;
+        return methodBody != null ? methodBody.equals(that.methodBody) : that.methodBody == null;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getMethodName(), getMethodBody());
+        int result = methodName != null ? methodName.hashCode() : 0;
+        result = 31 * result + (methodBody != null ? methodBody.hashCode() : 0);
+        return result;
     }
 }

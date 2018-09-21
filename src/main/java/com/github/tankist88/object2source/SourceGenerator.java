@@ -5,6 +5,7 @@ import com.github.tankist88.object2source.dto.ProviderInfo;
 import com.github.tankist88.object2source.dto.ProviderResult;
 import com.github.tankist88.object2source.exception.FillingNotSupportedException;
 import com.github.tankist88.object2source.exception.ObjectDepthExceededException;
+import com.github.tankist88.object2source.extension.DynamicProxyExtension;
 import com.github.tankist88.object2source.extension.EmbeddedExtension;
 import com.github.tankist88.object2source.extension.Extension;
 import com.github.tankist88.object2source.extension.arrays.ArraysExtension;
@@ -57,8 +58,8 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         this.exceptionWhenMaxODepth = exceptionWhenMaxODepth;
         this.commonMethodsClassName = commonMethodsClassName;
         this.commonMethods = getCommonMethods(tabSymb);
-        this.extensions =  new ArrayList<>();
-        this.extensionClasses = new HashSet<>();
+        this.extensions =  new ArrayList<Extension>();
+        this.extensionClasses = new HashSet<String>();
         initEmbeddedExtensions();
     }
 
@@ -74,6 +75,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         registerExtension(new EmptyListExtension());
         registerExtension(new ArraysArrayListExtension());
         registerExtension(new ArraysExtension());
+        registerExtension(new DynamicProxyExtension());
     }
 
     @Override
@@ -285,7 +287,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     }
 
     private ProviderResult createDataProviderMethod(Object obj, String fieldName, boolean fillObj, int objectDepth) throws Exception {
-        Set<ProviderInfo> providers = new HashSet<>();
+        Set<ProviderInfo> providers = new HashSet<ProviderInfo>();
 
         int nextObjectDepth = objectDepth - 1;
 
@@ -326,7 +328,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     }
 
     public Set<String> getAllowedPackages() {
-        if (allowedPackages == null) allowedPackages = new HashSet<>();
+        if (allowedPackages == null) allowedPackages = new HashSet<String>();
         return allowedPackages;
     }
 

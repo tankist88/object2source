@@ -95,7 +95,7 @@ public class AssigmentUtil {
     }
 
     public static Set<ProviderInfo> getCommonMethods(String tabSymb) {
-        Set<ProviderInfo> result = new HashSet<>();
+        Set<ProviderInfo> result = new HashSet<ProviderInfo>();
         BufferedReader br = null;
         try {
             InputStream inputStream = AssigmentUtil.class.getClassLoader().getResourceAsStream(COMMON_METHODS_FILE);

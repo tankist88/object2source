@@ -11,7 +11,7 @@ getCalendarInstance(<tzId>, <mTime>)
 getClassHierarchy(<clazz>)
 -----------------
 <tab>public static java.util.List<Class> getClassHierarchy(Class clazz){
-<tab><tab>java.util.List<Class> classes = new java.util.ArrayList<>();
+<tab><tab>java.util.List<Class> classes = new java.util.ArrayList<Class>();
 <tab><tab>for (Class c : hierarchy(clazz)) {
 <tab><tab><tab>if(c.equals(Object.class)) continue;
 <tab><tab><tab>classes.add(c);
@@ -60,20 +60,20 @@ hierarchy(<type>)
 <tab><tab>@Override
 <tab><tab>public boolean equals(Object o) {
 <tab><tab><tab>if (this == o) return true;
-<tab><tab><tab>if (!(o instanceof MutableObject)) return false;
+<tab><tab><tab>if (o == null || getClass() != o.getClass()) return false;
 <tab><tab><tab>MutableObject<?> that = (MutableObject<?>) o;
-<tab><tab><tab>return java.util.Objects.equals(getValue(), that.getValue());
+<tab><tab><tab>return value != null ? value.equals(that.value) : that.value == null;
 <tab><tab>}
 <tab><tab>@Override
 <tab><tab>public int hashCode() {
-<tab><tab><tab>return java.util.Objects.hash(getValue());
+<tab><tab><tab>return value != null ? value.hashCode() : 0;
 <tab><tab>}
 <tab>}
 -----------------
 getAllFieldsOfObject(<obj>)
 -----------------
 <tab>public static java.util.List<java.lang.reflect.Field> getAllFieldsOfObject(Object obj) {
-<tab><tab>java.util.List<java.lang.reflect.Field> allFields = new java.util.ArrayList<>();
+<tab><tab>java.util.List<java.lang.reflect.Field> allFields = new java.util.ArrayList<java.lang.reflect.Field>();
 <tab><tab>for(Class c : getClassHierarchy(obj.getClass())) {
 <tab><tab><tab>allFields.addAll(java.util.Arrays.asList(c.getDeclaredFields()));
 <tab><tab>}

@@ -2,8 +2,10 @@ package com.github.tankist88.object2source.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.tankist88.object2source.extension.DynamicProxyExtension.PROXY_TYPES;
 import static com.github.tankist88.object2source.util.GenerationUtil.*;
 
 public class ExtensionUtil {
@@ -19,5 +21,24 @@ public class ExtensionUtil {
             }
         }
         return null;
+    }
+    
+    public static boolean isDynamicProxy(Class clazz) {
+        boolean noInterfaces = clazz.getInterfaces() == null || clazz.getInterfaces().length == 0;
+        boolean noSuperClasses = clazz.getSuperclass() == null || clazz.getSuperclass().getName().equals(Object.class.getName());
+        if (noInterfaces && noSuperClasses) return false;
+        List<String> parents = new ArrayList<String>();
+        if (clazz.getInterfaces() != null) {
+            for (Class intf : clazz.getInterfaces()) {
+                parents.add(intf.getName());
+            }
+        }
+        if (clazz.getSuperclass() != null) {
+            parents.add(clazz.getSuperclass().getName());
+        }
+        for (String parent : parents) {
+            if (PROXY_TYPES.contains(parent)) return true;
+        }
+        return false;
     }
 }

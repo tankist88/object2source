@@ -25,7 +25,7 @@ public class InstanceCreateData implements Serializable {
 
     public Set<ProviderInfo> getDataProviderMethods() {
         if(dataProviderMethods == null) {
-            dataProviderMethods = new HashSet<>();
+            dataProviderMethods = new HashSet<ProviderInfo>();
         }
         return dataProviderMethods;
     }

@@ -76,6 +76,7 @@ public class ArrayExtensionTest {
         String generated = ae.getMethodBody(new HashSet<ProviderInfo>(), 20, array, false)
                 .replace("\n","")
                 .replace("\r","")
+                .replace("\t","")
                 .replace(" ", "");
         assertEquals(generated, result);
     }

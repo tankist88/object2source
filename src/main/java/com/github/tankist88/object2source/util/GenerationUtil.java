@@ -15,6 +15,21 @@ public class GenerationUtil {
     public static final String DATA_PROVIDER_METHOD_START = "get";
     public static final String FILLING_METHOD_START = "fill";
 
+    private static final List<String> PRIMITIVES = Arrays.asList(
+        "boolean", "int", "long", "double", "float", "char", "short", "byte"
+    );
+
+    private static final List<String> WRAPPERS = Arrays.asList(
+        "java.lang.Boolean",
+        "java.lang.Integer",
+        "java.lang.Long",
+        "java.lang.Double",
+        "java.lang.Float",
+        "java.lang.Character",
+        "java.lang.Short",
+        "java.lang.Byte"
+    );
+
     public static Object getFieldValue(Field field, Object fieldOwner) throws IllegalAccessException {
         boolean currentAccessible = field.isAccessible();
         field.setAccessible(true);
@@ -28,13 +43,13 @@ public class GenerationUtil {
     }
 
     public static List<String> getClassHierarchyStr(List<Class> classHierarchy){
-        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<String>();
         for(Class c : classHierarchy) result.add(c.getName());
         return result;
     }
 
     public static List<Class> getClassHierarchy(Class clazz){
-        List<Class> classes = new ArrayList<>();
+        List<Class> classes = new ArrayList<Class>();
         for (Class c : ClassUtils.hierarchy(clazz)) {
             if(c.equals(Object.class)) continue;
             classes.add(c);
@@ -43,7 +58,7 @@ public class GenerationUtil {
     }
 
     public static List<String> getInterfacesHierarchyStr(Class clazz){
-        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<String>();
         for(Class c : getInterfacesHierarchy(clazz)) {
             result.add(c.getName());
         }
@@ -51,7 +66,7 @@ public class GenerationUtil {
     }
 
     public static List<Class> getInterfacesHierarchy(Class<?> clazz) {
-        List<Class> interfaces = new ArrayList<>();
+        List<Class> interfaces = new ArrayList<Class>();
         for (Class i : ClassUtils.hierarchy(clazz, ClassUtils.Interfaces.INCLUDE)) {
             if(i.isInterface()) {
                 interfaces.add(i);
@@ -186,7 +201,7 @@ public class GenerationUtil {
     }
 
     public static List<Field> getAllFieldsOfClass(List<Class> classHierarchy) {
-        List<Field> allFields = new ArrayList<>();
+        List<Field> allFields = new ArrayList<Field>();
         for (Class c : classHierarchy) {
             allFields.addAll(Arrays.asList(c.getDeclaredFields()));
         }
@@ -194,7 +209,7 @@ public class GenerationUtil {
     }
 
     public static List<Method> getAllMethodsOfClass(List<Class> classHierarchy) {
-        List<Method> allMethods = new ArrayList<>();
+        List<Method> allMethods = new ArrayList<Method>();
         for (Class c : classHierarchy) {
             allMethods.addAll(Arrays.asList(c.getDeclaredMethods()));
         }
@@ -202,33 +217,11 @@ public class GenerationUtil {
     }
 
     public static boolean isPrimitive(String className) {
-        switch(className) {
-            case "boolean" :
-            case "int" :
-            case "long" :
-            case "double" :
-            case "float" :
-            case "char" :
-            case "short" :
-            case "byte" :
-                return true;
-            default: return false;
-        }
+        return PRIMITIVES.contains(className);
     }
 
     public static boolean isWrapper(String className) {
-        switch(className) {
-            case "java.lang.Boolean" :
-            case "java.lang.Integer" :
-            case "java.lang.Long" :
-            case "java.lang.Double" :
-            case "java.lang.Float" :
-            case "java.lang.Character" :
-            case "java.lang.Short" :
-            case "java.lang.Byte" :
-                return true;
-            default: return false;
-        }
+        return WRAPPERS.contains(className);
     }
 
     public static Class convertPrimitiveToWrapper(Class clazz) {
@@ -286,7 +279,7 @@ public class GenerationUtil {
                     Class argType = args[i].isPrimitive() ? convertPrimitiveToWrapper(args[i]) : args[i];
                     Class decType = pTypes[i].isPrimitive() ? convertPrimitiveToWrapper(pTypes[i]) : pTypes[i];
 
-                    Set<String> argTypeHierarchy = new HashSet<>();
+                    Set<String> argTypeHierarchy = new HashSet<String>();
                     argTypeHierarchy.addAll(getClassHierarchyStr(argType));
                     argTypeHierarchy.add(Object.class.getName());
                     argTypeHierarchy.addAll(getInterfacesHierarchyStr(argType));
@@ -311,7 +304,7 @@ public class GenerationUtil {
 
     public static List<Class> getMethodArgGenericTypes(Method method, int argNum) {
         Type[] types = method.getGenericParameterTypes();
-        if(types.length <= argNum) return new ArrayList<>();
+        if(types.length <= argNum) return new ArrayList<Class>();
         Type type = types[argNum];
         if(type instanceof ParameterizedType) {
             List<Class> result = getParameterizedTypes(type);
@@ -321,12 +314,12 @@ public class GenerationUtil {
                 return getParameterizedTypes(method.getGenericReturnType());
             }
         } else {
-            return new ArrayList<>();
+            return new ArrayList<Class>();
         }
     }
 
     public static List<Class> getParameterizedTypes(Type type) {
-        List<Class> result = new ArrayList<>();
+        List<Class> result = new ArrayList<Class>();
         if(type instanceof ParameterizedType) {
             for (Type gt : ((ParameterizedType) type).getActualTypeArguments()) {
                 if (gt instanceof Class) result.add((Class) gt);

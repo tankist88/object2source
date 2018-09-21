@@ -68,7 +68,7 @@ public class TestObj {
 
     public List<BigDecimal> getTestObjList() {
         if(testObjList == null) {
-            testObjList = new ArrayList<>();
+            testObjList = new ArrayList<BigDecimal>();
         }
         return testObjList;
     }
@@ -79,7 +79,7 @@ public class TestObj {
 
     public Set<TestObj> getTestObjSet() {
         if(testObjSet == null) {
-            testObjSet = new HashSet<>();
+            testObjSet = new HashSet<TestObj>();
         }
         return testObjSet;
     }
@@ -90,7 +90,7 @@ public class TestObj {
 
     public Map<String, TestObj> getTestObjMap() {
         if(testObjMap == null) {
-            testObjMap = new HashMap<>();
+            testObjMap = new HashMap<String, TestObj>();
         }
         return testObjMap;
     }
