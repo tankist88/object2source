@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.github.tankist88.object2source.TestUtil.clearWhiteSpaces;
+import static com.github.tankist88.object2source.util.ExtensionUtil.isInvocationHandler;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -44,31 +46,51 @@ public class DynamicProxyExtensionTest {
     }
 
     @Test
+    public void isFillingSupportedTest() {
+        assertFalse(ext.isFillingSupported());
+    }
+
+    @Test
     public void getMethodBodyTest() throws Exception {
         Set<ProviderInfo> providers = new HashSet<ProviderInfo>();
-        String generatedBody = ext.getMethodBody(providers, 10, createDynamicProxy(), false)
-                .replace("\n","")
-                .replace("\r","")
-                .replace("\t","")
-                .replace(" ", "");
+        Object proxy = createDynamicProxy();
+        byte b = ((DP1) proxy).getByte();
+        System.out.println(b);
+        String generatedBody = clearWhiteSpaces(ext.getMethodBody(providers, 10, proxy, false));
         assertEquals(generatedBody, "returnnewProxyForDP1DP2();");
         assertEquals(providers.size(), 1);
-        String generatedProvider = providers.iterator().next().getMethodBody()
-                .replace("\n","")
-                .replace("\r","")
-                .replace("\t","")
-                .replace(" ", "");
+        String generatedProvider = clearWhiteSpaces(providers.iterator().next().getMethodBody());
         assertEquals(generatedProvider, EXPECTED_PROVIDER);
     }
 
+    @Test
+    public void getActualTypeTest() {
+        assertEquals(ext.getActualType(createDynamicProxy()), "ProxyForDP1DP2");
+    }
+
+    @Test
+    public void isInvocationHandlerTest() {
+        assertTrue(isInvocationHandler((new Handler(new User())).getClass()));
+        assertFalse(isInvocationHandler(Integer.class));
+        assertFalse(isInvocationHandler(Object.class));
+    }
+
     private Object createDynamicProxy() {
-        InvocationHandler handler = new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                return method.invoke(proxy, args);
-            }
-        };
+        Handler handler = new Handler(new User());
         return Proxy.newProxyInstance(User.class.getClassLoader(), User.class.getInterfaces(), handler);
+    }
+
+    private class Handler implements InvocationHandler {
+        private Object obj;
+
+        private Handler(Object obj) {
+            this.obj = obj;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            return method.invoke(obj, args);
+        }
     }
 
     private static class User implements DP1, DP2 {

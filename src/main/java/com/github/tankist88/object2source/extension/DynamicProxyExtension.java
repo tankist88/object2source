@@ -16,6 +16,11 @@ public class DynamicProxyExtension extends AbstractEmbeddedExtension {
         "javassist.util.proxy.ProxyObject"
     );
 
+    public static final List<String> HANDLER_TYPES = Arrays.asList(
+        "java.lang.reflect.InvocationHandler",
+        "javassist.util.proxy.MethodHandler"
+    );
+
     private static final List<String> DEC_PRIMITIVES = Arrays.asList(
             "int", "long", "char", "short", "byte"
     );
@@ -27,11 +32,6 @@ public class DynamicProxyExtension extends AbstractEmbeddedExtension {
     @Override
     public boolean isTypeSupported(Class<?> clazz) {
         return isDynamicProxy(clazz);
-    }
-
-    @Override
-    public boolean isFillingSupported() {
-        return false;
     }
 
     @Override

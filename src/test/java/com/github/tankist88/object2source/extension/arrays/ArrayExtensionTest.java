@@ -67,6 +67,11 @@ public class ArrayExtensionTest {
     }
 
     @Test
+    public void isFillingSupportedTest() {
+        assertFalse(ae.isFillingSupported());
+    }
+
+    @Test
     public void getActualTypeTest() {
         assertEquals(ae.getActualType(new int[0]), "int[]");
     }
