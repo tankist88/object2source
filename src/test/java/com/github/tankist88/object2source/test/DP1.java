@@ -9,4 +9,5 @@ public interface DP1 {
     short getShort();
     double getDouble();
     float getFloat();
+    byte[] getByteArr(byte[] arr);
 }

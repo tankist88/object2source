@@ -1,5 +1,7 @@
 package com.github.tankist88.object2source.util;
 
+import org.apache.commons.lang3.ClassUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -8,6 +10,7 @@ import java.util.List;
 import static com.github.tankist88.object2source.extension.DynamicProxyExtension.HANDLER_TYPES;
 import static com.github.tankist88.object2source.extension.DynamicProxyExtension.PROXY_TYPES;
 import static com.github.tankist88.object2source.util.GenerationUtil.*;
+import static java.lang.reflect.Modifier.isPublic;
 
 public class ExtensionUtil {
     public static Class getCollectionWrappedType(Object obj, Class collectionParent, List<Class> classHierarchy) throws IllegalAccessException {
@@ -54,5 +57,25 @@ public class ExtensionUtil {
             if (HANDLER_TYPES.contains(parent)) return true;
         }
         return false;
+    }
+
+    public static String getActualClassName(Class clazz) {
+        Class canonicalClazz = getCanonicalClass(clazz);
+        String canonicalName = clazz.getCanonicalName();
+        if (!isPublic(canonicalClazz.getModifiers())) {
+            return Object.class.getName() + canonicalName.substring(canonicalName.indexOf("["));
+        } else {
+            return canonicalName;
+        }
+    }
+
+    public static Class getCanonicalClass(Class clazz) {
+        String canonicalName = clazz.getCanonicalName();
+        String canonicalType = canonicalName.replace("[", "").replace("]", "");
+        try {
+            return ClassUtils.getClass(clazz.getClassLoader(), canonicalType);
+        } catch (ClassNotFoundException cnf1) {
+            throw new IllegalStateException(cnf1);
+        }
     }
 }

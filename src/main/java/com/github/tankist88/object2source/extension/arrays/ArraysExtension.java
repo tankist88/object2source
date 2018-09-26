@@ -3,7 +3,6 @@ package com.github.tankist88.object2source.extension.arrays;
 import com.github.tankist88.object2source.dto.InstanceCreateData;
 import com.github.tankist88.object2source.dto.ProviderInfo;
 import com.github.tankist88.object2source.extension.AbstractEmbeddedExtension;
-import org.apache.commons.lang3.ClassUtils;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -11,8 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static com.github.tankist88.object2source.util.ExtensionUtil.getActualClassName;
+import static com.github.tankist88.object2source.util.ExtensionUtil.getCanonicalClass;
 import static com.github.tankist88.object2source.util.GenerationUtil.*;
-import static java.lang.reflect.Modifier.isPublic;
 
 public class ArraysExtension extends AbstractEmbeddedExtension {
     @Override
@@ -22,27 +22,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
 
     @Override
     public String getActualType(Object obj) {
-        return getClearedClassName(getActualClassName(obj));
-    }
-
-    private String getActualClassName(Object obj) {
-        Class canonicalClazz = getCanonicalClass(obj);
-        String canonicalName = obj.getClass().getCanonicalName();
-        if (!isPublic(canonicalClazz.getModifiers())) {
-            return Object.class.getName() + canonicalName.substring(canonicalName.indexOf("["));
-        } else {
-            return canonicalName;
-        }
-    }
-
-    private Class getCanonicalClass(Object obj) {
-        String canonicalName = obj.getClass().getCanonicalName();
-        String canonicalType = canonicalName.replace("[", "").replace("]", "");
-        try {
-            return ClassUtils.getClass(obj.getClass().getClassLoader(), canonicalType);
-        } catch (ClassNotFoundException cnf1) {
-            throw new IllegalStateException(cnf1);
-        }
+        return getClearedClassName(getActualClassName(obj.getClass()));
     }
 
     @Override
@@ -152,7 +132,7 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
               .append(typeWithSize)
               .append(";\n");
         } else {
-            String elementType = getCanonicalClass(obj).getName();
+            String elementType = getCanonicalClass(obj.getClass()).getName();
             bb.append("(")
               .append(typeName)
               .append(") java.lang.reflect.Array.newInstance(Class.forName(\"")

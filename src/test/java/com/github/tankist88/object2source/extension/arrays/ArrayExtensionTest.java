@@ -74,6 +74,9 @@ public class ArrayExtensionTest {
     @Test
     public void getActualTypeTest() {
         assertEquals(ae.getActualType(new int[0]), "int[]");
+        assertEquals(ae.getActualType(new int[0][0]), "int[][]");
+        assertEquals(ae.getActualType(new int[0][0][0]), "int[][][]");
+        assertEquals(ae.getActualType(new int[0][0][0][0]), "int[][][][]");
     }
 
     @Test(dataProvider = "arraysDataProvider")
