@@ -7,6 +7,7 @@ import com.github.tankist88.object2source.exception.FillingNotSupportedException
 import com.github.tankist88.object2source.test.Cyclic1;
 import com.github.tankist88.object2source.test.Cyclic2;
 import com.github.tankist88.object2source.test.PrivateStaticClassTest;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
@@ -285,10 +286,10 @@ public class SourceGeneratorTest {
         ProviderResult pr = sg.createDataProviderMethod(array);
         assertFalse(pr.getEndPoint().isEmpty());
         assertTrue(pr.getEndPoint().getMethodBody().contains("java.math.BigDecimal[][][] array = new java.math.BigDecimal[4][3][2];"));
-        assertTrue(pr.getEndPoint().getMethodBody().contains("array[0] = getArray__1748287722();"));
-        assertTrue(pr.getEndPoint().getMethodBody().contains("array[1] = getArray__1748287722();"));
-        assertTrue(pr.getEndPoint().getMethodBody().contains("array[2] = getArray__1748287722();"));
-        assertTrue(pr.getEndPoint().getMethodBody().contains("array[3] = getArray__1748287722();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[0] = getArray__1118493302();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[1] = getArray__1118493302();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[2] = getArray__1118493302();"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("array[3] = getArray__1118493302();"));
     }
 
     @Test
@@ -315,13 +316,22 @@ public class SourceGeneratorTest {
     private static class PrivateClassForArray {
     }
 
-    @Test
-    public void allowedTypeTest() {
+    @Test(dataProvider = "allowedTypeDataProvider")
+    public void allowedTypeTest(Class clazz, boolean result) {
         SourceGenerator sg = new SourceGenerator();
         sg.getAllowedPackages().add("java.lang");
-        assertTrue(sg.allowedType(Boolean.class));
-        assertTrue(sg.allowedType(boolean.class));
-        assertFalse(sg.allowedType(ArrayList.class));
+        assertEquals(sg.allowedType(clazz), result);
+    }
+
+    @DataProvider
+    private Object[][] allowedTypeDataProvider() {
+        return new Object[][] {
+                {Boolean.class, true},
+                {boolean.class, true},
+                {(new byte[10]).getClass(), true},
+                {ArrayList.class, false},
+                {(new TestObj[10]).getClass(), false}
+        };
     }
 
     @Test
@@ -389,5 +399,12 @@ public class SourceGeneratorTest {
                 .replace("\t", "");
         assertEquals(generated, "publicstaticvoidfillCyclic1_0" +
                 "(com.github.tankist88.object2source.test.Cyclic1_cyclic1)throwsException{}");
+    }
+
+    @Test
+    public void generateBigDecimalTest() {
+        SourceGenerator sg = new SourceGenerator();
+        ProviderResult pr = sg.createDataProviderMethod(new BigDecimal("1000.00"));
+        assertTrue(pr.getEndPoint().getMethodBody().contains("return new java.math.BigDecimal(\"1000.00\");"));
     }
 }

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.github.tankist88.object2source.util.AssigmentUtil.*;
+import static com.github.tankist88.object2source.util.ExtensionUtil.getCanonicalTypeName;
 import static com.github.tankist88.object2source.util.GenerationUtil.*;
 import static java.lang.reflect.Modifier.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -218,7 +219,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
             result = new InstanceCreateData("\"" + escapedVal + "\"");
         } else if (clazz.equals(java.math.BigDecimal.class)) {
             java.math.BigDecimal val = (java.math.BigDecimal) obj;
-            result = new InstanceCreateData("new java.math.BigDecimal(" + val + "d)");
+            result = new InstanceCreateData("new java.math.BigDecimal(\"" + val + "\")");
         } else if (clazz.equals(java.math.BigInteger.class)) {
             java.math.BigInteger val = (java.math.BigInteger) obj;
             result = new InstanceCreateData("new java.math.BigInteger(\"" + val + "\")");
@@ -334,8 +335,10 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
 
     boolean allowedType(Class<?> clazz) {
         if (allowedPackages == null || allowedPackages.size() == 0 || clazz.isPrimitive()) return true;
+        String className = clazz.isArray() ? getCanonicalTypeName(clazz) : clazz.getName();
+        if (isPrimitive(className)) return true;
         for (String p : allowedPackages) {
-            if (clazz.getName().startsWith(p)) return true;
+            if (className.startsWith(p)) return true;
         }
         return false;
     }

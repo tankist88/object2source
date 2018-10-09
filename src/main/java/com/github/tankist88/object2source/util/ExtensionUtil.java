@@ -78,4 +78,9 @@ public class ExtensionUtil {
             throw new IllegalStateException(cnf1);
         }
     }
+
+    public static String getCanonicalTypeName(Class clazz) {
+        String canonicalName = clazz.getCanonicalName();
+        return canonicalName.replace("[", "").replace("]", "");
+    }
 }

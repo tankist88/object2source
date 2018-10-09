@@ -35,7 +35,7 @@ public class ArrayExtensionTest {
             "double[]array=newdouble[1];returnarray;",
             "java.lang.String[]array=newjava.lang.String[1];array[0]=\"ggg\";returnarray;",
             "java.math.BigDecimal[]array=newjava.math.BigDecimal[1];" +
-                    "array[0]=newjava.math.BigDecimal(1d);returnarray;",
+                    "array[0]=newjava.math.BigDecimal(\"1\");returnarray;",
             "java.math.BigInteger[]array=newjava.math.BigInteger[1];" +
                     "array[0]=newjava.math.BigInteger(\"1\");returnarray;",
             "java.sql.Timestamp[]array=newjava.sql.Timestamp[1];returnarray;",
