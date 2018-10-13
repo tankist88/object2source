@@ -13,6 +13,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.*;
 
+import static com.github.tankist88.object2source.TestUtil.clearWhiteSpaces;
 import static org.testng.Assert.*;
 
 public class ArrayExtensionTest {
@@ -53,6 +54,12 @@ public class ArrayExtensionTest {
             "int[][][]array=newint[2][2][2];array[0]=getArray__711776323();array[1]=getArray__549247319();returnarray;"
     };
 
+    private static final String[] BYTE_ARRAY_MAX_LENGTHRESULTS = new String[] {
+            "byte[]array=newbyte[4];array[0]=(byte)-1;array[1]=(byte)1;array[2]=(byte)-1;array[3]=(byte)1;returnarray;",
+            "byte[]array=newbyte[4];returnarray;",
+            "byte[]array=newbyte[4];array[0]=(byte)-1;array[1]=(byte)1;returnarray;"
+    };
+
     private ArraysExtension ae = new ArraysExtension();
 
     @BeforeClass
@@ -79,13 +86,30 @@ public class ArrayExtensionTest {
         assertEquals(ae.getActualType(new int[0][0][0][0]), "int[][][][]");
     }
 
+    @Test(dataProvider = "arraysByteMaxLengthDataProvider")
+    public void getMethodBodyByteMaxLengthTest(int maxLength, String expected) throws Exception {
+        ArraysExtension ae = new ArraysExtension(maxLength);
+        ae.setSourceGenerator(new SourceGenerator());
+        String generated = clearWhiteSpaces(
+                ae.getMethodBody(new HashSet<ProviderInfo>(), 20, new byte[] {-1, 1, -1, 1}, false)
+        );
+        assertEquals(generated, expected);
+    }
+
+    @DataProvider
+    public Object[][] arraysByteMaxLengthDataProvider() {
+        return new Object[][] {
+                {-1, BYTE_ARRAY_MAX_LENGTHRESULTS[0]},
+                {0, BYTE_ARRAY_MAX_LENGTHRESULTS[1]},
+                {2, BYTE_ARRAY_MAX_LENGTHRESULTS[2]},
+        };
+    }
+
     @Test(dataProvider = "arraysDataProvider")
     public void getMethodBodyTest(Object array, String result) throws Exception {
-        String generated = ae.getMethodBody(new HashSet<ProviderInfo>(), 20, array, false)
-                .replace("\n","")
-                .replace("\r","")
-                .replace("\t","")
-                .replace(" ", "");
+        String generated = clearWhiteSpaces(
+                ae.getMethodBody(new HashSet<ProviderInfo>(), 20, array, false)
+        );
         assertEquals(generated, result);
     }
 

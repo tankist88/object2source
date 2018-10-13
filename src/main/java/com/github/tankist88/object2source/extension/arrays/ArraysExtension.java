@@ -15,6 +15,16 @@ import static com.github.tankist88.object2source.util.ExtensionUtil.getCanonical
 import static com.github.tankist88.object2source.util.GenerationUtil.*;
 
 public class ArraysExtension extends AbstractEmbeddedExtension {
+    private int byteArrayMaxLength;
+
+    public ArraysExtension() {
+        this(-1);
+    }
+
+    public ArraysExtension(int byteArrayMaxLength) {
+        this.byteArrayMaxLength = byteArrayMaxLength;
+    }
+
     @Override
     public boolean isTypeSupported(Class clazz) {
         return clazz.isArray();
@@ -42,7 +52,8 @@ public class ArraysExtension extends AbstractEmbeddedExtension {
         } else if (obj instanceof byte[]) {
             byte[] arr = ((byte[]) obj);
             arraySizeList.add(arr.length);
-            for (int i = 0; i < arr.length; i++) {
+            int length = byteArrayMaxLength >= 0 ? byteArrayMaxLength : arr.length;
+            for (int i = 0; i < length; i++) {
                 if (arr[i] == (byte) 0) continue;
                 String instVal = sourceGenerator.getInstanceCreateData(arr[i], objectDepth).getInstanceCreator();
                 arrayValues.append(createArrayElementString(fieldName, instVal, i, getTabSymb()));

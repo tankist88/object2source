@@ -30,6 +30,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     static final int DEFAULT_MAX_DEPTH = 10;
+    static final int DEFAULT_BYTE_ARRAY_MAX_LENGTH = -1;
 
     private Set<String> allowedPackages;
     private int maxObjectDepth;
@@ -39,6 +40,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
     private boolean exceptionWhenMaxODepth;
     private ArrayList<Extension> extensions;
     private Set<String> extensionClasses;
+    private int byteArrayMaxLength;
 
     public SourceGenerator() {
         this("    ", new HashSet<String>());
@@ -61,6 +63,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         this.commonMethods = getCommonMethods(tabSymb);
         this.extensions =  new ArrayList<Extension>();
         this.extensionClasses = new HashSet<String>();
+        this.byteArrayMaxLength = DEFAULT_BYTE_ARRAY_MAX_LENGTH;
         initEmbeddedExtensions();
     }
 
@@ -75,7 +78,7 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
         registerExtension(new EmptySetExtension());
         registerExtension(new EmptyListExtension());
         registerExtension(new ArraysArrayListExtension());
-        registerExtension(new ArraysExtension());
+        registerExtension(new ArraysExtension(byteArrayMaxLength));
         registerExtension(new DynamicProxyExtension());
     }
 
@@ -371,5 +374,13 @@ public class SourceGenerator implements CreateTypeGenerator, FillTypeGenerator {
 
     public void setMaxObjectDepth(int maxObjectDepth) {
         this.maxObjectDepth = maxObjectDepth;
+    }
+
+    public int getByteArrayMaxLength() {
+        return byteArrayMaxLength;
+    }
+
+    public void setByteArrayMaxLength(int byteArrayMaxLength) {
+        this.byteArrayMaxLength = byteArrayMaxLength;
     }
 }

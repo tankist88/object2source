@@ -97,6 +97,14 @@ public class SourceGeneratorTest {
     }
 
     @Test
+    public void testSetByteArrayMaxLength() {
+        SourceGenerator sg = new SourceGenerator();
+        assertEquals(sg.getByteArrayMaxLength(), SourceGenerator.DEFAULT_BYTE_ARRAY_MAX_LENGTH);
+        sg.setByteArrayMaxLength(100);
+        assertEquals(sg.getByteArrayMaxLength(), 100);
+    }
+
+    @Test
     public void testSetMaxObjectDepth() {
         SourceGenerator sg = new SourceGenerator();
         assertEquals(sg.getMaxObjectDepth(), SourceGenerator.DEFAULT_MAX_DEPTH);
@@ -328,9 +336,15 @@ public class SourceGeneratorTest {
         return new Object[][] {
                 {Boolean.class, true},
                 {boolean.class, true},
+                {(new int[10]).getClass(), true},
+                {(new double[10]).getClass(), true},
                 {(new byte[10]).getClass(), true},
+                {(new byte[10][10]).getClass(), true},
+                {(new byte[10][10][10]).getClass(), true},
                 {ArrayList.class, false},
-                {(new TestObj[10]).getClass(), false}
+                {(new TestObj[10]).getClass(), false},
+                {(new TestObj[10][10]).getClass(), false},
+                {(new TestObj[10][10][10]).getClass(), false}
         };
     }
 
